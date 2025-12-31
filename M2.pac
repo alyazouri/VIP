@@ -6,38 +6,38 @@
 // ===================== ULTRA-AGGRESSIVE JORDAN PROXIES =====================
 var HYPER_PROXIES = {
   JO_PRIMARY: {
-    P1: "PROXY 212.35.66.45:20020",
+    P1: "PROXY 212.35.66.45:20002",
     P2: "PROXY 46.185.131.218:20001",
     P3: "PROXY 212.35.66.46:443",
     P4: "PROXY 91.106.109.12:20004",
-    P5: "PROXY 94.249.123.45:3128",
-    P6: "PROXY 185.165.120.34:8080",
-    P7: "PROXY 86.108.12.34:8080",
-    P8: "PROXY 109.107.224.56:3128",
-    P9: "PROXY 176.29.78.90:8080",
-    P10: "PROXY 37.202.128.12:3128"
+    P5: "PROXY 46.185.139.253:9999",
+    P6: "PROXY 46.185.244.144:8080",
+    P7: "PROXY 46.32.102.48:20001",
+    P8: "PROXY 46.32.102.125:20001",
+    P9: "PROXY 46.32.100.237:20001",
+    P10: "PROXY 46.32.102.152:20001"
   },
   
   JO_MATCHMAKING: {
-    M1: "PROXY 212.35.66.45:20020",  // Main matchmaking
+    M1: "PROXY 212.35.66.45:20001",  // Main matchmaking
     M2: "PROXY 46.185.131.218:20001", // Secondary matchmaking
-    M3: "PROXY 94.249.123.45:3128",   // Backup 1
-    M4: "PROXY 185.165.120.34:8080",  // Backup 2
+    M3: "PROXY 46.185.139.253:9999",   // Backup 1
+    M4: "PROXY 46.32.100.237:20001",  // Backup 2
     M5: "PROXY 86.108.12.34:8080",    // Backup 3
-    M6: "PROXY 109.107.224.56:3128"   // Backup 4
+    M6: "PROXY 46.32.102.152:20001"   // Backup 4
   },
   
   JO_GAME_SERVERS: {
     G1: "PROXY 91.106.109.12:20001",  // Game server 1
-    G2: "PROXY 91.106.109.25:20001",  // Game server 2
+    G2: "PROXY 46.32.102.152:20001",  // Game server 2
     G3: "PROXY 212.35.66.46:443",     // Game server 3
-    G4: "PROXY 46.185.131.222:20001", // Game server 4
+    G4: "PROXY 46.32.100.237:20001", // Game server 4
     G5: "PROXY 46.185.131.223:20001", // Game server 5
     G6: "PROXY 176.29.78.90:8080"     // Game server 6
   },
   
   JO_VOICE: {
-    V1: "PROXY 46.185.131.222:20001", // Voice primary
+    V1: "PROXY 46.32.100.237:20001", // Voice primary
     V2: "PROXY 46.185.131.223:20001", // Voice secondary
     V3: "PROXY 212.35.66.46:443",     // Voice backup 1
     V4: "PROXY 185.165.120.34:8080",  // Voice backup 2
@@ -46,7 +46,7 @@ var HYPER_PROXIES = {
   
   JO_EMERGENCY: {
     E1: "PROXY 5.154.32.18:8080",     // Umniah IP
-    E2: "PROXY 37.32.45.67:3128",     // Orange IP
+    E2: "PROXY 91.106.109.12:20004",     // Orange IP
     E3: "PROXY 176.28.12.89:8080",    // Zain IP
     E4: "PROXY 85.158.34.56:3128",    // Jordan Telecom
     E5: "PROXY 31.9.78.123:8080",     // Additional Jordan
