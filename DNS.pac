@@ -5,7 +5,7 @@ var CFG = {
   ALLOW_SAFE_DIRECT: true,
   BLOCK_IR_AF: true,
   HEADSHOT_PRIORITY: true,
-  PROXY_ROTATION: false   // ثابت = ثبات NAT
+  PROXY_ROTATION: true   // ثابت = ثبات NAT
 };
 
 // ===================== DIRECT ONLY =====================
