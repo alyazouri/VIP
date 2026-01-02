@@ -5,7 +5,7 @@
 
 // ===================== SOCKS5 ADDITIVE CFG (NEW) =====================
 var SOCKS5_CFG = {
-  USE_SOCKS5: true,     // true = يرجّع SOCKS5 بدل PROXY (بدون تغيير أي منطق)
+  USE_SOCKS5: false,     // true = يرجّع SOCKS5 بدل PROXY (بدون تغيير أي منطق)
   USE_SOCKS5H: false    // true = SOCKS5H (DNS عبر البروكسي) بدل SOCKS5
 };
 
