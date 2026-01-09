@@ -1,7 +1,6 @@
 // =====================================================
-// PUBG Mobile PAC – FINAL STABLE
-// Priority: Jordan 🇯🇴 → Gulf (Secondary)
-// Stable Ping + No Route Switch + Afghan Block
+// PUBG Mobile PAC – FINAL ULTIMATE
+// Jordan Recruit FIX + Stable Match + No Ping Spike
 // =====================================================
 
 // =======================
@@ -20,16 +19,13 @@ var BLOCK =
 "PROXY 127.0.0.1:9";
 
 // =======================
-// SAFE DIRECT
+// SAFE / CDN DIRECT
 // =======================
 var SAFE_DIRECT = [
 "captive.apple.com","time.apple.com","ocsp.apple.com",
 "clients3.google.com","gstatic.com","googleapis.com"
 ];
 
-// =======================
-// CDN DIRECT
-// =======================
 var CDN_DIRECT = [
 "youtube.com","googlevideo.com","ytimg.com",
 "fbcdn.net","facebook.com","instagram.com",
@@ -38,7 +34,7 @@ var CDN_DIRECT = [
 ];
 
 // =======================
-// 🇯🇴 JORDAN – MATCH (STRICT)
+// 🇯🇴 JORDAN MATCH (STRICT)
 // =======================
 var JO_CORE = {
 "82.212.":1,"212.35.":1,"86.108.":1,
@@ -46,7 +42,7 @@ var JO_CORE = {
 };
 
 // =======================
-// 🇯🇴 JORDAN – LOBBY (WIDE)
+// 🇯🇴 JORDAN LOBBY (WIDE)
 // =======================
 var JO_LOBBY = {
 "82.212.":1,"212.35.":1,"86.108.":1,"46.185.":1,
@@ -57,6 +53,13 @@ var JO_LOBBY = {
 "79.134.":1,"79.173.":1,
 "81.21.":1,"81.28.":1,
 "62.72.":1,"62.150.":1,"62.251.":1
+};
+
+// =======================
+// 🌍 ANYCAST (RECRUIT POOL FIX)
+// =======================
+var JO_ANYCAST = {
+"13.":1,"15.":1,"18.":1,"52.":1
 };
 
 // =======================
@@ -145,27 +148,28 @@ if(sw(ip,AFG)) return BLOCK;
 var JO_MATCH = sw(ip,JO_CORE);
 var JO_LBY   = sw(ip,JO_LOBBY);
 var GF       = sw(ip,GULF);
+var ANY      = sw(ip,JO_ANYCAST);
 
 // =======================
-// LOBBY / RECRUIT (WIDE JO)
+// LOBBY / RECRUIT (JO + ANYCAST)
 // =======================
 if(isLobby(url+host))
-return (JO_LBY || GF) ? LOBBY_PROXY : BLOCK;
+return (JO_LBY || GF || ANY) ? LOBBY_PROXY : BLOCK;
 
 // =======================
-// ARENA / WOW (JO ONLY)
+// ARENA / WOW (JO STRICT)
 // =======================
 if(isArena(url+host) || isWOW(url+host))
 return JO_MATCH ? LOBBY_PROXY : BLOCK;
 
 // =======================
-// VOICE (SEPARATE PATH)
+// VOICE
 // =======================
 if(isVoice(url+host))
 return VOICE_PROXY;
 
 // =======================
-// MATCH (STRICT + LOCK)
+// MATCH (JO ONLY + LOCK)
 // =======================
 if(isMatch(url+host))
 return JO_MATCH ? lockMatch(MATCH_PROXY) : BLOCK;
