@@ -292,7 +292,6 @@ return BLOCK;
 if (isMatch(url, host)) {
 var locked = getLockedIP();
 
-```
 if (locked) {
   // إذا كان مقفول على IP معين، استمر عليه
   if (ip === locked) return MATCH_PROXY;
@@ -316,7 +315,6 @@ if (tier === 3 || tier === 4) {
 if (isBH || isGF) return MATCH_PROXY;
 
 return BLOCK;
-```
 
 }
 
@@ -326,7 +324,6 @@ return BLOCK;
 if (isLobby(url, host)) {
 var phase = getLobbyPhase();
 
-```
 // Phase 1: TIER 1 فقط (أقوى نطاقات)
 if (phase === 1) {
   if (tier === 1) return LOBBY_PROXY;
@@ -360,7 +357,6 @@ if (phase === 5) {
 // Phase 6: الأردن + بحرين + خليج بعيد
 if (isJO || isBH || isGF) return LOBBY_PROXY;
 return BLOCK;
-```
 
 }
 
@@ -370,7 +366,6 @@ return BLOCK;
 if (isWOW(url, host)) {
 var wowPhase = getWOWPhase();
 
-```
 // Phase 1: TIER 1 فقط
 if (wowPhase === 1) {
   if (tier === 1) return LOBBY_PROXY;
@@ -392,7 +387,6 @@ if (wowPhase === 3) {
 // Phase 4: الأردن + بحرين فقط (لا خليج بعيد)
 if (isJO || isBH) return LOBBY_PROXY;
 return BLOCK;
-```
 
 }
 
@@ -402,7 +396,6 @@ return BLOCK;
 if (isArena(url, host)) {
 var arenaPhase = getArenaPhase();
 
-```
 // Phase 1: TIER 1
 if (arenaPhase === 1) {
   if (tier === 1) return LOBBY_PROXY;
@@ -424,7 +417,7 @@ if (arenaPhase === 3) {
 // Phase 4: الأردن + بحرين
 if (isJO || isBH) return LOBBY_PROXY;
 return BLOCK;
-```
+
 
 }
 
