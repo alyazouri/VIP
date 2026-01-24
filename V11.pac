@@ -1,5 +1,5 @@
 // ================= PROXIES =================
-var MATCH_JO = "PROXY 212.35.66.45:20001"; // UDP Match (Strong)
+var MATCH_JO = "PROXY 212.35.66.45:20001"; // UDP Match (Strong, Port Locked)
 
 var LOBBY_POOL = [
   "PROXY 91.106.109.12:9030",
@@ -11,7 +11,8 @@ var LOBBY_POOL = [
 var BLOCK  = "PROXY 127.0.0.1:9";
 var DIRECT = "DIRECT";
 
-// ================= JORDAN MATCH (STRICT & FAST) =================
+// ================= JORDAN MATCH (ULTRA-STRICT & FAST) =================
+// أقصر المسارات داخل الأردن فقط
 var JORDAN_MATCH_IPV4 = [
   ["82.212.64.0","255.255.192.0"],   // Zain core
   ["94.249.0.0","255.255.128.0"],    // Zain mobile
@@ -21,10 +22,10 @@ var JORDAN_MATCH_IPV4 = [
   ["213.6.0.0","255.255.0.0"]        // DC core
 ];
 
-// ================= JORDAN LOBBY (WIDE & VISIBILITY SAFE) =================
+// ================= JORDAN LOBBY (WIDE, PURE, SOFT) =================
+// توسعة أردنية فقط للتجنيد/اللوبي (بدون فتح دول)
 var JORDAN_WIDE_IPV4 = [
-  // Mobile / CGNAT / Relay
-  ["10.0.0.0","255.0.0.0"],
+  // CGNAT / Mobile Relays (JO)
   ["100.64.0.0","255.192.0.0"],
 
   // Zain
@@ -42,13 +43,13 @@ var JORDAN_WIDE_IPV4 = [
   ["31.153.0.0","255.255.0.0"],
   ["188.123.160.0","255.255.224.0"],
 
-  // Gov / Edu / Enterprise
+  // Gov / Edu / Enterprise (JO)
   ["212.35.0.0","255.255.0.0"],
   ["178.133.0.0","255.255.0.0"],
   ["85.235.0.0","255.255.0.0"],
   ["62.150.0.0","255.255.128.0"],
 
-  // IX / DC / Transit (local)
+  // IX / DC / Transit (JO-local)
   ["213.6.0.0","255.255.0.0"],
   ["46.185.0.0","255.255.0.0"],
   ["185.107.0.0","255.255.0.0"],
@@ -82,56 +83,44 @@ var GEO_BLACKLIST = [
   ["60.0.0.0","255.0.0.0"]
 ];
 
-// ================= IRAQ BLACKLIST (ALL SERVICES – NO EXCEPTIONS) =================
+// ================= IRAQ BLACKLIST (ALL SERVICES) =================
 var IRAQ_BLACKLIST = [
-  ["37.236.0.0","255.252.0.0"],   // 37.236.0.0/14
-  ["45.82.0.0","255.255.0.0"],    // 45.82.0.0/16
-  ["45.84.0.0","255.255.0.0"],    // 45.84.0.0/16
-  ["62.201.0.0","255.255.0.0"],   // 62.201.0.0/16
-  ["77.44.0.0","255.252.0.0"],    // 77.44.0.0/14
-  ["78.109.0.0","255.255.0.0"],   // 78.109.0.0/16
-  ["91.132.0.0","255.255.0.0"],   // 91.132.0.0/16
-  ["95.170.0.0","255.254.0.0"],   // 95.170.0.0/15
-  ["185.117.0.0","255.255.0.0"],  // 185.117.0.0/16
-  ["185.194.0.0","255.255.0.0"],  // 185.194.0.0/16
-  ["185.225.0.0","255.255.0.0"]   // 185.225.0.0/16
+  ["37.236.0.0","255.252.0.0"],
+  ["45.82.0.0","255.255.0.0"],
+  ["45.84.0.0","255.255.0.0"],
+  ["62.201.0.0","255.255.0.0"],
+  ["77.44.0.0","255.252.0.0"],
+  ["78.109.0.0","255.255.0.0"],
+  ["91.132.0.0","255.255.0.0"],
+  ["95.170.0.0","255.254.0.0"],
+  ["185.117.0.0","255.255.0.0"],
+  ["185.194.0.0","255.255.0.0"],
+  ["185.225.0.0","255.255.0.0"]
 ];
 
 // ================= SESSION =================
-var SESSION = {
-  matchNet: null,
-  matchHost: null,
-  dnsCache: {}
-};
+var SESSION = { matchNet:null, matchHost:null, dnsCache:{} };
 
 // ================= HELPERS =================
 function norm(h){ var i=h.indexOf(":"); return i>-1?h.substring(0,i):h; }
-
 function isInList(ip, list){
   for (var i=0;i<list.length;i++)
     if (isInNet(ip, list[i][0], list[i][1])) return true;
   return false;
 }
-
-function isIraq(ip){
-  return isInList(ip, IRAQ_BLACKLIST);
-}
-
+function isIraq(ip){ return isInList(ip, IRAQ_BLACKLIST); }
 function resolvePinned(host){
   if (SESSION.dnsCache[host]) return SESSION.dnsCache[host];
   var ip = dnsResolve(host);
   if (ip) SESSION.dnsCache[host] = ip;
   return ip;
 }
-
 function pickLobbyProxy(host){
-  var h=0;
-  for (var i=0;i<host.length;i++)
-    h=(h+host.charCodeAt(i))%LOBBY_POOL.length;
+  var h=0; for (var i=0;i<host.length;i++) h=(h+host.charCodeAt(i))%LOBBY_POOL.length;
   return LOBBY_POOL[h];
 }
 
-// ================= DETECTION (FULL & VISIBILITY AWARE) =================
+// ================= DETECTION =================
 function isPUBG(h){
   return /(pubg|pubgm|bgmi|tencent|krafton|lightspeed|levelinfinite|vng|krmobile)/i.test(h);
 }
@@ -155,30 +144,29 @@ function isCDN(u,h){
 }
 
 // ================= MAIN =================
-function FindProxyForURL(url, host) {
-
+function FindProxyForURL(url, host){
   host = norm(host.toLowerCase());
   if (!isPUBG(host)) return DIRECT;
 
   var ip = resolvePinned(host);
   if (!ip || ip.indexOf(":")>-1) return BLOCK;
 
-  // HARD BLOCK IRAQ (ALL SERVICES)
+  // HARD BLOCK IRAQ (EVERYWHERE)
   if (isIraq(ip)) return BLOCK;
 
-  // PRESENCE / RELAY (VISIBILITY)
+  // PRESENCE / RELAY (VISIBILITY FIRST)
   if (isPresence(url, host) || isRelay(url, host)) {
     return pickLobbyProxy(host);
   }
 
-  // MATCH (STRICT)
+  // MATCH (STRICT & LOWEST PING)
   if (isMatch(url, host)) {
     if (isInList(ip, GEO_BLACKLIST)) return BLOCK;
     if (!isInList(ip, JORDAN_MATCH_IPV4)) return BLOCK;
 
     var net24 = ip.split('.').slice(0,3).join('.');
     if (!SESSION.matchNet) {
-      SESSION.matchNet  = net24;
+      SESSION.matchNet = net24;
       SESSION.matchHost = host;
       return MATCH_JO;
     }
@@ -188,7 +176,7 @@ function FindProxyForURL(url, host) {
     return MATCH_JO;
   }
 
-  // LOBBY / SOCIAL / CDN
+  // LOBBY / SOCIAL / CDN (SOFT & PURE JO)
   if (isLobby(url, host) || isSocial(url, host) || isCDN(url, host)) {
     if (!isInList(ip, JORDAN_WIDE_IPV4)) return BLOCK;
     return pickLobbyProxy(host);
