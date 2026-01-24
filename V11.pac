@@ -1,9 +1,9 @@
 // ================= PROXIES =================
-var MATCH_JO = "PROXY 46.185.131.218:20001"; // UDP Match (Strong & Stable)
+var MATCH_JO = "PROXY 46.185.131.218:20001"; // UDP Match (Strong)
 
 var LOBBY_POOL = [
-  "PROXY 212.35.66.45:8085",
-  "PROXY 212.35.66.45:8181",
+  "PROXY 176.29.153.95:9030",
+  "PROXY 212.35.66.45:10039",
   "PROXY 46.185.131.218:443"
 ];
 
@@ -22,7 +22,7 @@ var JORDAN_MATCH_IPV4 = [
 
 // ================= JORDAN LOBBY (WIDE & VISIBILITY SAFE) =================
 var JORDAN_WIDE_IPV4 = [
-  // Mobile / CGNAT / Relay (critical for visibility)
+  // Mobile / CGNAT / Relay
   ["10.0.0.0","255.0.0.0"],
   ["100.64.0.0","255.192.0.0"],
 
@@ -81,6 +81,21 @@ var GEO_BLACKLIST = [
   ["60.0.0.0","255.0.0.0"]
 ];
 
+// ================= IRAQ BLACKLIST (ALL SERVICES – NO EXCEPTIONS) =================
+var IRAQ_BLACKLIST = [
+  ["37.236.0.0","255.252.0.0"],   // 37.236.0.0/14
+  ["45.82.0.0","255.255.0.0"],    // 45.82.0.0/16
+  ["45.84.0.0","255.255.0.0"],    // 45.84.0.0/16
+  ["62.201.0.0","255.255.0.0"],   // 62.201.0.0/16
+  ["77.44.0.0","255.252.0.0"],    // 77.44.0.0/14
+  ["78.109.0.0","255.255.0.0"],   // 78.109.0.0/16
+  ["91.132.0.0","255.255.0.0"],   // 91.132.0.0/16
+  ["95.170.0.0","255.254.0.0"],   // 95.170.0.0/15
+  ["185.117.0.0","255.255.0.0"],  // 185.117.0.0/16
+  ["185.194.0.0","255.255.0.0"],  // 185.194.0.0/16
+  ["185.225.0.0","255.255.0.0"]   // 185.225.0.0/16
+];
+
 // ================= SESSION =================
 var SESSION = {
   matchNet: null,
@@ -95,6 +110,10 @@ function isInList(ip, list){
   for (var i=0;i<list.length;i++)
     if (isInNet(ip, list[i][0], list[i][1])) return true;
   return false;
+}
+
+function isIraq(ip){
+  return isInList(ip, IRAQ_BLACKLIST);
 }
 
 function resolvePinned(host){
@@ -115,35 +134,23 @@ function pickLobbyProxy(host){
 function isPUBG(h){
   return /(pubg|pubgm|bgmi|tencent|krafton|lightspeed|levelinfinite|vng|krmobile)/i.test(h);
 }
-
 function isMatch(u,h){
-  return /(match|battle|game|combat|realtime|sync|state|udp|tick|room|server|ingame|play)/i
-    .test(u + " " + h);
+  return /(match|battle|game|combat|realtime|sync|state|udp|tick|room|server|ingame|play)/i.test(u+" "+h);
 }
-
 function isLobby(u,h){
-  return /(lobby|matchmaking|queue|dispatch|gateway|region|join|enter|recruit|mm|search)/i
-    .test(u + " " + h);
+  return /(lobby|matchmaking|queue|dispatch|gateway|region|join|enter|recruit|mm|search)/i.test(u+" "+h);
 }
-
 function isSocial(u,h){
-  return /(friend|invite|squad|team|party|clan|crew|presence|chat|social)/i
-    .test(u + " " + h);
+  return /(friend|invite|squad|team|party|clan|crew|presence|chat|social)/i.test(u+" "+h);
 }
-
 function isPresence(u,h){
-  return /(presence|status|online|heartbeat|keepalive|session)/i
-    .test(u + " " + h);
+  return /(presence|status|online|heartbeat|keepalive|session)/i.test(u+" "+h);
 }
-
 function isRelay(u,h){
-  return /(relay|turn|stun|voice|rtc|webrtc|media)/i
-    .test(u + " " + h);
+  return /(relay|turn|stun|voice|rtc|webrtc|media)/i.test(u+" "+h);
 }
-
 function isCDN(u,h){
-  return /(cdn|asset|resource|download|patch|update|media|content|bundle|pak|obb)/i
-    .test(u + " " + h);
+  return /(cdn|asset|resource|download|patch|update|media|content|bundle|pak|obb)/i.test(u+" "+h);
 }
 
 // ================= MAIN =================
@@ -155,35 +162,32 @@ function FindProxyForURL(url, host) {
   var ip = resolvePinned(host);
   if (!ip || ip.indexOf(":")>-1) return BLOCK;
 
-  // ========= PRESENCE / RELAY (VISIBILITY FIX) =========
+  // HARD BLOCK IRAQ (ALL SERVICES)
+  if (isIraq(ip)) return BLOCK;
+
+  // PRESENCE / RELAY (VISIBILITY)
   if (isPresence(url, host) || isRelay(url, host)) {
     return pickLobbyProxy(host);
   }
 
-  // ========= MATCH (STRICT & CLEAN) =========
+  // MATCH (STRICT)
   if (isMatch(url, host)) {
-
-    // Geo block ONLY for match
     if (isInList(ip, GEO_BLACKLIST)) return BLOCK;
-
-    // Strong Jordan only
     if (!isInList(ip, JORDAN_MATCH_IPV4)) return BLOCK;
 
     var net24 = ip.split('.').slice(0,3).join('.');
-
     if (!SESSION.matchNet) {
       SESSION.matchNet  = net24;
       SESSION.matchHost = host;
       return MATCH_JO;
     }
-
     if (host !== SESSION.matchHost) return BLOCK;
     if (net24 !== SESSION.matchNet) return BLOCK;
 
     return MATCH_JO;
   }
 
-  // ========= LOBBY / RECRUIT / SOCIAL / CDN =========
+  // LOBBY / SOCIAL / CDN
   if (isLobby(url, host) || isSocial(url, host) || isCDN(url, host)) {
     if (!isInList(ip, JORDAN_WIDE_IPV4)) return BLOCK;
     return pickLobbyProxy(host);
