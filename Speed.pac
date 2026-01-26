@@ -37,7 +37,7 @@ var JORDAN_WIDE_IPV4 = [
 // ================= BLACKLIST: EU + RUSSIA + ASIA =================
 var GEO_BLACKLIST = [
 
-  // Europe (wide)
+  // Europe
   ["5.0.0.0","255.0.0.0"],
   ["37.0.0.0","255.0.0.0"],
   ["51.0.0.0","255.0.0.0"],
@@ -49,7 +49,7 @@ var GEO_BLACKLIST = [
   ["95.24.0.0","255.248.0.0"],
   ["178.64.0.0","255.192.0.0"],
 
-  // Asia (far & wide)
+  // Asia
   ["1.0.0.0","255.0.0.0"],
   ["14.0.0.0","255.0.0.0"],
   ["27.0.0.0","255.0.0.0"],
@@ -92,6 +92,13 @@ function pickLobbyProxy(host){
   return LOBBY_POOL[h];
 }
 
+// ================= WHITELIST =================
+function isWhitelistedPlatform(h){
+  return /(youtube\.com|youtu\.be|googlevideo\.com|
+           github\.com|githubusercontent\.com|
+           tiktok\.com|tiktokcdn\.com|tiktokv\.com)/i.test(h);
+}
+
 // ================= DETECTION =================
 function isPUBG(h){
   return /pubg|pubgm|tencent|krafton|lightspeed|levelinfinite/i.test(h);
@@ -113,6 +120,10 @@ function isCDN(u,h){
 function FindProxyForURL(url, host) {
 
   host = norm(host.toLowerCase());
+
+  // ===== GLOBAL WHITELIST =====
+  if (isWhitelistedPlatform(host)) return DIRECT;
+
   if (!isPUBG(host)) return DIRECT;
 
   var ip = resolvePinned(host);
