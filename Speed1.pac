@@ -1,4 +1,11 @@
-// ================= PROXIES =================
+// =======================================================
+// PROXIES
+// =======================================================
+// MATCH_JO   : بروكسي الماتش (أقل بنق + ثابت)
+// LOBBY_POOL : بروكسيات اللوبي (توزيع ثابت)
+// BLOCK      : إسقاط أي اتصال غير مرغوب
+// DIRECT     : مرور مباشر (منصات مستثناة)
+
 var MATCH_JO = "PROXY 91.106.109.12:20001";
 
 var LOBBY_POOL = [
@@ -10,33 +17,41 @@ var LOBBY_POOL = [
 var BLOCK  = "PROXY 127.0.0.1:9";
 var DIRECT = "DIRECT";
 
-// ================= JORDAN MATCH (STRONG) =================
+
+// =======================================================
+// JORDAN MATCH (STRICT)
+// =======================================================
+// نطاقات أردنية ثابتة للماتش فقط
+// الهدف: Ping ثابت + منع أي Server Hop أثناء اللعب
+
 var JORDAN_MATCH_IPV4 = [
-  ["82.212.64.0","255.255.192.0"],
-  ["94.249.0.0","255.255.128.0"],
-  ["176.29.0.0","255.255.0.0"],
-  ["176.28.128.0","255.255.128.0"],
-  ["46.185.128.0","255.255.128.0"],
-  ["213.6.0.0","255.255.0.0"],
-  ["212.35.0.0","255.255.0.0"]
+  ["46.185.128.0","255.255.128.0"], // Orange Jordan
+  ["212.35.0.0","255.255.0.0"],     // Orange Jordan
+  ["86.108.0.0","255.254.0.0"],     // Zain Jordan
+  ["176.29.0.0","255.255.0.0"]      // Umniah Jordan
 ];
 
-// ================= JORDAN WIDE (LOBBY) =================
-var JORDAN_WIDE_IPV4 = [
-  ["46.185.0.0","255.255.0.0"],
-  ["212.35.0.0","255.255.0.0"],
-  ["212.69.0.0","255.255.0.0"],
-  ["212.118.0.0","255.255.0.0"],
-  ["176.28.0.0","255.254.0.0"],
-  ["176.29.0.0","255.255.0.0"],
-  ["188.161.0.0","255.255.0.0"],
-  ["86.108.0.0","255.254.0.0"],
-  ["149.200.0.0","255.255.0.0"],
-  ["213.6.0.0","255.254.0.0"],
-  ["195.229.0.0","255.254.0.0"]
+
+// =======================================================
+// JORDAN REAL PLAYERS (99%)
+// =======================================================
+// تمثل 99% من اللاعبين الأردنيين الحقيقيين داخل الأردن
+// شبكات منزلية + موبايل (ليست VPS ولا CDN)
+
+var JORDAN_REAL_PLAYERS_IPV4 = [
+  ["46.185.128.0","255.255.128.0"], // Orange
+  ["212.35.0.0","255.255.0.0"],     // Orange
+  ["86.108.0.0","255.254.0.0"],     // Zain
+  ["176.29.0.0","255.255.0.0"]      // Umniah
 ];
 
-// ================= BLACKLIST: EU + RUSSIA + ASIA =================
+
+// =======================================================
+// GEO BLACKLIST
+// =======================================================
+// منع أوروبا / روسيا / آسيا
+// الهدف: منع Region Drift و Matchmaking الخاطئ
+
 var GEO_BLACKLIST = [
   ["5.0.0.0","255.0.0.0"],
   ["37.0.0.0","255.0.0.0"],
@@ -58,14 +73,24 @@ var GEO_BLACKLIST = [
   ["60.0.0.0","255.0.0.0"]
 ];
 
-// ================= SESSION =================
+
+// =======================================================
+// SESSION STATE
+// =======================================================
+// matchNet  : تثبيت /24 أثناء الماتش
+// matchHost : تثبيت السيرفر
+// dnsCache  : منع تغيّر IP أثناء الجلسة
+
 var SESSION = {
   matchNet: null,
   matchHost: null,
   dnsCache: {}
 };
 
-// ================= HELPERS =================
+
+// =======================================================
+// HELPERS
+// =======================================================
 function norm(h){
   var i=h.indexOf(":");
   return i>-1 ? h.substring(0,i) : h;
@@ -77,7 +102,7 @@ function isInList(ip, list){
   return false;
 }
 
-// DNS pinning (PUBG only)
+// DNS pinning خاص بـ PUBG
 function resolvePinned(host){
   if (SESSION.dnsCache[host]) return SESSION.dnsCache[host];
   var ip = dnsResolve(host);
@@ -85,6 +110,7 @@ function resolvePinned(host){
   return ip;
 }
 
+// توزيع ثابت للّوبي
 function pickLobbyProxy(host){
   var h=0;
   for (var i=0;i<host.length;i++)
@@ -92,36 +118,54 @@ function pickLobbyProxy(host){
   return LOBBY_POOL[h];
 }
 
-// ================= WHITELIST =================
+
+// =======================================================
+// GLOBAL WHITELIST (DIRECT)
+// =======================================================
+// منصات مستثناة بالكامل
+
 function isWhitelistedPlatform(h){
   return /(youtube\.com|youtu\.be|googlevideo\.com|
            github\.com|githubusercontent\.com|
            tiktok\.com|tiktokcdn\.com|tiktokv\.com)/i.test(h);
 }
 
-// ================= DETECTION =================
+
+// =======================================================
+// DETECTION (FLEXIBLE)
+// =======================================================
 function isPUBG(h){
   return /pubg|pubgm|tencent|krafton|lightspeed|levelinfinite/i.test(h);
 }
+
+// Match = صارم
 function isMatch(u,h){
   return /match|battle|game|combat|realtime|sync|udp|tick|room/i.test(u+h);
 }
+
+// Lobby = مرن
 function isLobby(u,h){
-  return /lobby|matchmaking|queue|dispatch|gateway|region|join|recruit/i.test(u+h);
+  return /lobby|matchmaking|queue|dispatch|gateway|region|
+          join|recruit|enter|prepare|pre|connect|handshake/i.test(u+h);
 }
+
 function isSocial(u,h){
   return /friend|invite|squad|team|party|clan|presence|social/i.test(u+h);
 }
+
 function isCDN(u,h){
   return /cdn|asset|resource|patch|update|media|content/i.test(u+h);
 }
 
-// ================= MAIN =================
+
+// =======================================================
+// MAIN
+// =======================================================
 function FindProxyForURL(url, host) {
 
   host = norm(host.toLowerCase());
 
-  // GLOBAL WHITELIST
+  // DIRECT PLATFORMS
   if (isWhitelistedPlatform(host)) return DIRECT;
   if (!isPUBG(host)) return DIRECT;
 
@@ -131,7 +175,7 @@ function FindProxyForURL(url, host) {
   // HARD GEO BLOCK
   if (isInList(ip, GEO_BLACKLIST)) return BLOCK;
 
-  // ================= MATCH (STRICT + PINNING) =================
+  // ================= MATCH (STRICT PINNING) =================
   if (isMatch(url, host)) {
 
     if (!isInList(ip, JORDAN_MATCH_IPV4)) return BLOCK;
@@ -150,19 +194,18 @@ function FindProxyForURL(url, host) {
     return MATCH_JO;
   }
 
-  // ================= RESET AFTER MATCH =================
+  // RESET AFTER MATCH
   if (SESSION.matchNet) {
     SESSION.matchNet = null;
     SESSION.matchHost = null;
   }
 
-  // ================= LOBBY / SOCIAL / CDN (SMART) =================
+  // ================= LOBBY / SOCIAL / CDN (FLEXIBLE) =================
   if (isLobby(url, host) || isSocial(url, host) || isCDN(url, host)) {
-
-    // أردني أو غير أردني → يمر عبر البروكسي (بدون Direct)
     return pickLobbyProxy(host);
   }
 
-  // ================= NO FALLBACK =================
-  return BLOCK;
+  // ================= PUBG UNKNOWN TRAFFIC =================
+  // أي اتصال PUBG غير مصنّف نعامله كلوبّي
+  return pickLobbyProxy(host);
 }
