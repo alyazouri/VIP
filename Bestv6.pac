@@ -26,7 +26,7 @@ var JORDAN_WIDE_IPV4 = [
 ["149.200.128.0","255.255.128.0"],  // Orange ADSL – clean routing
 ["37.202.64.0","255.255.192.0"],    // Orange updated – acceptable
 ["79.173.192.0","255.255.192.0"],   // Orange ADSL – متوسط
-["176.28.128.0","255.255.128.0"],   // Zain Mobile (أفضل خيار موبايل فقط)
+["176.28.128.0","255.255.128.0"]    // Zain Mobile (أفضل خيار موبايل فقط)
 ];
 
 // ================= JORDAN MATCH IPV6 (UPDATED WITH 2026 ALLOCATIONS - NO LEAKS) =================
