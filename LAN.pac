@@ -1,5 +1,7 @@
-var DIRECT = "DIRECT";
-var BLOCK  = "PROXY 127.0.0.1:9";
+// ================= PROXIES =================
+var MATCH_JO   = "PROXY 37.44.38.20:443";
+var LOBBY_POOL = "PROXY 2.59.53.74:443";
+var BLOCK      = "PROXY 127.0.0.1:9";
 
 // ================= INTERNAL IPV4 =================
 var INTERNAL_IPV4 = [
@@ -28,9 +30,12 @@ function isInList(ip, list){
   return false;
 }
 
-// ================= PUBG DETECTION =================
-function isPUBG(h){
-  return /pubg|pubgm|tencent|krafton|lightspeed|levelinfinite/i.test(h);
+// ================= PUBG DETECTION (STRONG) =================
+function isPUBG(u,h){
+  return /(pubg|pubgm|pubgmobile|krafton|tencent|lightspeed|
+            levelinfinite|bluehole|vnggames|proxima|
+            igame|gcloud|qcloud|aliyun|aws)/i
+         .test(u + " " + h);
 }
 
 function isLobby(u,h){
@@ -47,7 +52,7 @@ function FindProxyForURL(url, host) {
   host = norm(host.toLowerCase());
 
   // فقط PUBG
-  if (!isPUBG(host)) return BLOCK;
+  if (!isPUBG(url, host)) return BLOCK;
 
   var ip = dnsResolve(host);
   if (!ip) return BLOCK;
@@ -65,19 +70,19 @@ function FindProxyForURL(url, host) {
     if (!SESSION.pinnedIP) {
       SESSION.pinnedIP   = ip;
       SESSION.pinnedHost = host;
-      return DIRECT;
+      return MATCH_JO;
     }
 
     // أي تغيير = حظر
-    if (ip !== SESSION.pinnedIP)   return BLOCK;
+    if (ip !== SESSION.pinnedIP)     return BLOCK;
     if (host !== SESSION.pinnedHost) return BLOCK;
 
-    return DIRECT;
+    return MATCH_JO;
   }
 
   // ================= LOBBY (LAN ONLY) =================
   if (isLobby(url, host)) {
-    return DIRECT;
+    return LOBBY_POOL;
   }
 
   // أي شيء آخر من PUBG
