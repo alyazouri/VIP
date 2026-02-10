@@ -1,121 +1,119 @@
 /************************************************************
- *  FINAL PAC – PUBG MOBILE (iOS) – OVERKILL++ (VALID PAC)
- *
- *  Requirements (as requested):
- *  - NO DIRECT anywhere (hard proxy only)
- *  - WOW uses SAME proxy as MATCH
- *  - Arena uses Jordan proxy
- *  - PUBG detection broad (covers most PUBGM ecosystems)
- *  - No time-based logic, no random(), no DNS dependency logic
- *
- *  Notes:
- *  - PAC still receives host as a hostname often; isInNet only helps
- *    when host is already an IP or resolvable by the system.
+ *  FINAL PAC – PUBG MOBILE (iOS)
+ *  Jordan MENA-Biased – FINAL CLEAN BUILD
  ************************************************************/
 
 /* =========================
-   PROXIES (HARD ONLY)
+   PROXIES
    ========================= */
 var PROXY = {
-  // Jordan-ish / local path proxy for Arena + general lobby
   JORDAN_ARENA : "PROXY 176.29.153.95:9030",
-
-  // Alternative lobby proxy (regional / second path)
   LOBBY_ALT    : "PROXY 212.35.66.45:9030",
-
-  // Match backbone (main)
   MATCH_MAIN   : "PROXY 176.29.153.95:20001",
-
-  // Match backbone (alt) - used only as stable split if needed
   MATCH_ALT    : "PROXY 212.35.66.45:20001"
 };
 
 /* =========================
-   OPTIONAL: Jordan strong-path hint ranges
-   (Used only as a soft tie-breaker for MATCH backbone)
+   JORDAN STRONG PATH
+   (ME-biased, narrowed, no EU)
    ========================= */
-function isJordanStrongPath(host) {
+function isJordanStrongPath(host){
   return (
-    isInNet(host, "176.29.0.0",   "255.255.0.0")   || // common JO access blocks
-    isInNet(host, "212.35.64.0",  "255.255.192.0") ||
-    isInNet(host, "87.236.232.0", "255.255.248.0") ||
-    isInNet(host, "185.54.12.0",  "255.255.252.0")
+    // 46.32.0.0/16 (split)
+    isInNet(host, "46.32.64.0",   "255.255.192.0") ||
+    isInNet(host, "46.32.128.0",  "255.255.128.0") ||
+
+    // 37.17.0.0/16 (split)
+    isInNet(host, "37.17.64.0",   "255.255.192.0") ||
+    isInNet(host, "37.17.128.0",  "255.255.128.0") ||
+
+    // 31.44.0.0/16 (split)
+    isInNet(host, "31.44.64.0",   "255.255.192.0") ||
+    isInNet(host, "31.44.128.0",  "255.255.128.0") ||
+
+    // 94.249.0.0/16 (split)
+    isInNet(host, "94.249.64.0",  "255.255.192.0") ||
+    isInNet(host, "94.249.128.0", "255.255.128.0") ||
+
+    // 45.128.0.0/16 (split)
+    isInNet(host, "45.128.64.0",  "255.255.192.0") ||
+    isInNet(host, "45.128.128.0", "255.255.128.0") ||
+
+    // 89.28.0.0/16 (split)
+    isInNet(host, "89.28.64.0",   "255.255.192.0") ||
+    isInNet(host, "89.28.128.0",  "255.255.128.0") ||
+
+    // 102.64.0.0/16 (split)
+    isInNet(host, "102.64.64.0",  "255.255.192.0") ||
+    isInNet(host, "102.64.128.0", "255.255.128.0") ||
+
+    // 196.204.0.0/16 (split)
+    isInNet(host, "196.204.64.0", "255.255.192.0") ||
+    isInNet(host, "196.204.128.0","255.255.128.0") ||
+
+    // Additional JO-used ME-leaning blocks (narrow)
+    isInNet(host, "23.250.128.0", "255.255.128.0") ||
+    isInNet(host, "66.96.128.0",  "255.255.128.0") ||
+    isInNet(host, "151.252.128.0","255.255.128.0") ||
+    isInNet(host, "62.84.128.0",  "255.255.128.0") ||
+    isInNet(host, "78.108.128.0", "255.255.128.0") ||
+    isInNet(host, "109.107.128.0","255.255.128.0") ||
+    isInNet(host, "41.222.128.0", "255.255.128.0") ||
+    isInNet(host, "197.237.128.0","255.255.128.0") ||
+    isInNet(host, "160.238.128.0","255.255.128.0")
   );
 }
 
 /* =========================
-   PUBG MOBILE – FULL DETECTION (host + url)
+   PUBG MOBILE DETECTION
    ========================= */
-function isPUBG(host, url) {
-  var h = (host || "").toLowerCase();
-  var u = (url  || "").toLowerCase();
-  var s = h + " " + u;
-
-  // Core brands / ecosystems seen across PUBG Mobile deployments:
-  // - Tencent/KRAFTON/Lightspeed ecosystem
-  // - intlgame/igamecj/proximabeta/amsoveasea (common strings)
-  // - gcloud/qcloud (infra)
-  // - vmp/gme/gamecenter (game services patterns)
+function isPUBG(host, url){
+  var s = ((host || "") + " " + (url || "")).toLowerCase();
   return (
-    /pubg/.test(s) ||
-    /pubgm/.test(s) ||
-    /pubgmobile/.test(s) ||
-    /intlgame/.test(s) ||
-    /igamecj/.test(s) ||
-    /tencent/.test(s) ||
-    /krafton/.test(s) ||
-    /lightspeed/.test(s) ||
-    /lightspeedandquantum/.test(s) ||
-    /proximabeta/.test(s) ||
-    /amsoveasea/.test(s) ||
-    /gcloud/.test(s) ||
-    /qcloud/.test(s) ||
-    /vmp/.test(s) ||
-    /vmpone/.test(s) ||
-    /gme/.test(s) ||
-    /gamecenter/.test(s)
+    s.indexOf("pubg") !== -1 ||
+    s.indexOf("pubgm") !== -1 ||
+    s.indexOf("pubgmobile") !== -1 ||
+    s.indexOf("intlgame") !== -1 ||
+    s.indexOf("igamecj") !== -1 ||
+    s.indexOf("tencent") !== -1 ||
+    s.indexOf("krafton") !== -1 ||
+    s.indexOf("lightspeed") !== -1 ||
+    s.indexOf("proximabeta") !== -1 ||
+    s.indexOf("amsoveasea") !== -1 ||
+    s.indexOf("gcloud") !== -1 ||
+    s.indexOf("qcloud") !== -1 ||
+    s.indexOf("vmp") !== -1 ||
+    s.indexOf("gme") !== -1 ||
+    s.indexOf("gamecenter") !== -1
   );
 }
 
 /* =========================
-   MODE / TRAFFIC CLASSIFIERS (url-heavy)
+   MODE CLASSIFIERS
    ========================= */
-
-// Lobby / matchmaking / rooms / recruit / party
-function isLobby(url) {
-  var u = (url || "").toLowerCase();
-  return /(lobby|matchmaking|matching|queue|room|rooms|customroom|custom-room|recruit|team|squad|party|invite|gate|dispatcher|router|region|allocation)/.test(u);
+function isLobby(url){
+  return /(lobby|matchmaking|matching|queue|room|rooms|customroom|recruit|team|squad|party|invite|dispatcher|router|region|allocation)/i.test(url || "");
 }
 
-// WOW (World of Wonder)
-function isWOW(url) {
-  var u = (url || "").toLowerCase();
-  return /(worldofwonder|wow|ugc|creative|creation|creations|custommap|custom-map|template|templates|map|maps|featured|trending|popular|recommend|recommended|daily|weekly|contest|contests|community|workshop|editor|publish|published|playtogether|play-together)/.test(u);
+function isWOW(url){
+  return /(worldofwonder|wow|ugc|creative|creation|creations|template|templates|map|maps|featured|trending|popular|recommend|contest|community|workshop|editor|publish)/i.test(url || "");
 }
 
-// Arena / TDM / Training / Evo / Infection
-function isArena(url) {
-  var u = (url || "").toLowerCase();
-  return /(arena|tdm|deathmatch|teamdeathmatch|team[_-]?deathmatch|gun|gungame|gun[_-]?game|training|arenatraining|arena[_-]?training|ultimate|ultimatearena|ultimate[_-]?arena|warehouse|hangar|evo|evoground|infection)/.test(u);
+function isArena(url){
+  return /(arena|tdm|deathmatch|teamdeathmatch|gun|gungame|training|warehouse|hangar|evo|evoground|infection)/i.test(url || "");
 }
 
-// Metro / Payload / PvE / Zombie-ish keywords
-function isSpecial(url) {
-  var u = (url || "").toLowerCase();
-  return /(metro|metroroyale|payload|helicopter|zombie|pve|mission|survive|survival|raid|co-op|coop)/.test(u);
+function isSpecial(url){
+  return /(metro|metroroyale|payload|helicopter|zombie|pve|mission|survive)/i.test(url || "");
 }
 
 /* =========================
-   STABLE FINGERPRINT (NO TIME / NO RANDOM)
-   - Same host + similar url length => stable score
+   STABLE FINGERPRINT
    ========================= */
-function fingerprint(host, url) {
-  var h = (host || "").toLowerCase();
-  var u = (url  || "");
-  var s = h + "|" + u.length;
-
+function fingerprint(host, url){
+  var s = (host || "") + "|" + ((url || "").length);
   var score = 0;
-  for (var i = 0; i < s.length; i++) {
+  for (var i = 0; i < s.length; i++){
     var c = s.charCodeAt(i);
     score += (c % 23) * 3;
     score += (c % 13) * 2;
@@ -125,61 +123,33 @@ function fingerprint(host, url) {
 }
 
 /* =========================
-   MATCH BACKBONE SELECTOR (Ping+Stability)
-   - Prefer MATCH_MAIN if destination hints JO path
-   - Otherwise stable split to reduce spikes
+   MATCH BACKBONE PICKER
    ========================= */
-function pickMatchProxy(host, fp) {
+function pickMatchProxy(host, fp){
   if (isJordanStrongPath(host)) return PROXY.MATCH_MAIN;
   return (fp % 2 === 0) ? PROXY.MATCH_MAIN : PROXY.MATCH_ALT;
 }
 
 /* =========================
-   FINAL CLASSIFIER CORE
-   - WOW => SAME AS MATCH (your requirement)
-   - Arena => Jordan proxy (your requirement)
-   - Lobby => mostly Jordan proxy, sometimes alt (stability)
-   - Special modes => lobby alt (often lighter path)
-   - Default (PUBG) => match backbone
+   FINAL CLASSIFIER
    ========================= */
-function classifyRoute(host, url) {
+function classifyRoute(host, url){
   var fp = fingerprint(host, url);
 
-  // WOW: same as match (طلبك)
-  if (isWOW(url)) {
-    return pickMatchProxy(host, fp);
-  }
+  if (isWOW(url)) return pickMatchProxy(host, fp);     // WOW → Match proxy
+  if (isArena(url)) return PROXY.JORDAN_ARENA;         // Arena → Jordan proxy
+  if (isSpecial(url)) return PROXY.LOBBY_ALT;          // Special modes
+  if (isLobby(url)) return (fp % 4 === 0) ? PROXY.LOBBY_ALT : PROXY.JORDAN_ARENA;
 
-  // Arena: Jordan proxy (طلبك)
-  if (isArena(url)) {
-    return PROXY.JORDAN_ARENA;
-  }
-
-  // Special modes (Metro/Payload/PvE): often better on ALT
-  if (isSpecial(url)) {
-    return PROXY.LOBBY_ALT;
-  }
-
-  // Lobby: bias to Jordan, occasional alt for balancing
-  if (isLobby(url)) {
-    return (fp % 4 === 0) ? PROXY.LOBBY_ALT : PROXY.JORDAN_ARENA;
-  }
-
-  // Everything else in PUBG bucket: treat as match backbone
-  return pickMatchProxy(host, fp);
+  return pickMatchProxy(host, fp); // Match
 }
 
 /* =========================
    PAC ENTRY POINT
-   - NO DIRECT ANYWHERE
    ========================= */
-function FindProxyForURL(url, host) {
-  host = (host || "").toLowerCase();
-
+function FindProxyForURL(url, host){
   if (isPUBG(host, url)) {
     return classifyRoute(host, url);
   }
-
-  // Hard mode for all other traffic too (as requested: no DIRECT)
-  return PROXY.JORDAN_ARENA;
+  return PROXY.JORDAN_ARENA; // Hard mode: no DIRECT
 }
