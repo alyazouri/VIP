@@ -1,30 +1,33 @@
 /* =========================================================
-   🇯🇴 PUBG OMEGA HARD LOCK – FINAL MAX
-   Single Core | Absolute Sticky | Region Kill Switch
-   Zero EU | Zero Asia | Zero TR | No Direct | No Fallback
+   🇯🇴 PUBG OMEGA LOCK – JORDAN PRIORITY
+   Jordan Range Boost | ME Core Only | Zero EU/Asia
+   Sticky Session | No Direct | No Fallback
    ========================================================= */
 
-var CORE = "PROXY 176.29.153.95:20001";
+var CORE_JO = "PROXY 176.29.153.95:20001";
 
 /* ==============================
-   🔒 ABSOLUTE SESSION LOCK
+   🔒 SESSION LOCK
    ============================== */
-var LOCK = CORE;
+var LOCK = CORE_JO;
 
 /* ==============================
-   ⚡ FNV-1a HASH (Anchor Stability)
+   🇯🇴 JORDAN IP RANGES
    ============================== */
-function fnv1a(str){
-  var h = 2166136261;
-  for (var i = 0; i < str.length; i++){
-    h ^= str.charCodeAt(i);
-    h += (h<<1)+(h<<4)+(h<<7)+(h<<8)+(h<<24);
-  }
-  return h >>> 0;
+function isJordan(host){
+  return (
+    isInNet(host,"46.32.0.0","255.248.0.0") ||
+    isInNet(host,"37.17.0.0","255.255.0.0") ||
+    isInNet(host,"31.44.0.0","255.252.0.0") ||
+    isInNet(host,"94.249.0.0","255.255.0.0") ||
+    isInNet(host,"188.161.0.0","255.255.0.0") ||
+    isInNet(host,"89.28.0.0","255.248.0.0") ||
+    isInNet(host,"102.64.0.0","255.192.0.0")
+  );
 }
 
 /* ==============================
-   🎮 EXTREME PUBG DETECTION
+   🎮 PUBG DETECTION
    ============================== */
 function isPUBG(host, url){
   var s = (host + " " + url).toLowerCase();
@@ -33,34 +36,21 @@ function isPUBG(host, url){
     /pubg|pubgm|krafton|lightspeed|proximabeta|igame/.test(s) ||
     /tencent|qcloud|myqcloud|gcloud|amazonaws|aws|cloudfront/.test(s) ||
     /battle|match|arena|allocation|dispatcher|router|session|lobby/.test(s) ||
-    /erangel|livik|miramar|tdm|warehouse|rank|classic|zone|payload/.test(s)
+    /erangel|livik|miramar|tdm|warehouse|rank|classic|zone/.test(s)
   );
 }
 
 /* ==============================
-   🌍 REGION KILL SWITCH
+   🌍 FOREIGN REGION BLOCK
    ============================== */
 function foreignRegion(host){
-
   var h = (host||"").toLowerCase();
 
   return (
-    /* Europe */
-    /eu-|europe|de-|fr-|nl-|uk-|it-|pl-|es-|se-|fi-|ro-|cz-/.test(h) ||
-
-    /* Asia */
-    /asia|ap-|sg-|jp-|kr-|hk-|tw-|india|in-|th-|vn-/.test(h) ||
-
-    /* Turkey / Russia */
+    /eu-|europe|de-|fr-|nl-|uk-|it-|pl-|es-|se-|fi-/.test(h) ||
+    /asia|ap-|sg-|jp-|kr-|hk-|tw-|india|in-/.test(h) ||
     /tr-|turkey|ru-|russia/.test(h)
   );
-}
-
-/* ==============================
-   🧱 HARD PIN ENGINE
-   ============================== */
-function hardPin(){
-  return LOCK;
 }
 
 /* ==============================
@@ -70,15 +60,20 @@ function FindProxyForURL(url, host){
 
   if (isPUBG(host, url)){
 
-    /* أي Endpoint أجنبي يُجبر على CORE */
+    /* 🇯🇴 أولوية أردنية */
+    if (isJordan(host)){
+      return LOCK;
+    }
+
+    /* 🌍 منع أوروبا وآسيا */
     if (foreignRegion(host)){
       return LOCK;
     }
 
-    /* تثبيت كامل بدون توسعة */
+    /* تثبيت Middle East Core */
     return LOCK;
   }
 
   /* منع DIRECT نهائي */
-  return CORE;
+  return CORE_JO;
 }
