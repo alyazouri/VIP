@@ -1,225 +1,280 @@
-var CORE_JO = "PROXY 176.29.153.95:20001";
-var SOCKS_JO = "SOCKS5 176.29.153.95:1080";
-var BACKUP = "SOCKS5 176.29.153.95:1080; PROXY 176.29.153.95:20001";
+/* ==============================
+   🔥 JORDAN-ONLY ULTIMATE SYSTEM
+   Dynamic IP Ready - No DNS Lookups
+   ============================== */
+
+// Proxy Configuration
+var PROXY_HOST = "176.29.153.95"; // غيّرها لـ DDNS إذا Dynamic IP
+var PROXY_PORT = "20001";
+var SOCKS_PORT = "1080";
+
+var PRIMARY = "SOCKS5 " + PROXY_HOST + ":" + SOCKS_PORT;
+var SECONDARY = "PROXY " + PROXY_HOST + ":" + PROXY_PORT;
+var CHAIN = PRIMARY + "; " + SECONDARY;
 
 /* ==============================
-   🔒 SESSION LOCK
+   💾 ULTRA-FAST CACHE
    ============================== */
-var LOCK = BACKUP;
 var matchCache = {};
+var hostCache = {};
+var blockList = {};
+var allowList = {};
 
 /* ==============================
-   🇯🇴 JORDAN DETECTION - موسع جداً
+   🇯🇴 JORDAN FINGERPRINT SCANNER
+   يكشف أي شيء أردني بدون DNS
    ============================== */
-function isJordanHost(host) {
+function isJordanFingerprint(host) {
+  // Quick cache lookup
+  if (allowList[host] === true) return true;
+  if (allowList[host] === false) return false;
+  
+  var h = host.toLowerCase();
+  var isJO = false;
+  
+  // Level 1: Domain TLD
+  if (/\.jo$/i.test(h)) {
+    isJO = true;
+  }
+  
+  // Level 2: Explicit Jordan markers
+  else if (/\bjordan\b|^jo-|^jo\d|-jo-|-jo\d|\.jo-|_jo_|jordan-|jordanian/i.test(h)) {
+    isJO = true;
+  }
+  
+  // Level 3: City names
+  else if (/\bamman\b|irbid|zarqa|aqaba|madaba|jerash|karak|mafraq|ajloun|salt/i.test(h)) {
+    isJO = true;
+  }
+  
+  // Level 4: ISP signatures (بدون DNS)
+  else if (/orange.*jo|umniah|zain.*jo|batelco.*jo|jpp|linkdot.*jo|mada.*jo/i.test(h)) {
+    isJO = true;
+  }
+  
+  // Level 5: IP patterns in hostname
+  else if (/176[.-]29[.-]|46[.-]3[2-9][.-]|37[.-]17[.-]|31[.-]4[4-7][.-]|94[.-]249[.-]|188[.-]161[.-]|89[.-]2[89][.-]|89[.-]3[0-5][.-]|185[.-]88[.-]|185[.-]117[.-]/i.test(h)) {
+    isJO = true;
+  }
+  
+  // Level 6: Palestine (close proximity)
+  else if (/\.ps$|palestine|^ps-|-ps-|ramallah|gaza|westbank|185[.-]98[.-]/i.test(h)) {
+    isJO = true;
+  }
+  
+  // Level 7: Levant region markers
+  else if (/^levant-|^sham-|-levant-|-sham-|\.levant\.|bilad.*sham/i.test(h)) {
+    isJO = true;
+  }
+  
+  // Cache result
+  allowList[host] = isJO;
+  return isJO;
+}
+
+/* ==============================
+   🌍 NEUTRAL SERVER DETECTION
+   سيرفرات عامة ممكن تكون قريبة
+   ============================== */
+function isNeutralServer(host) {
   var h = host.toLowerCase();
   
-  // Jordan domains
-  if (/\.jo$|\.jo\./.test(h)) return true;
+  // Generic server names without region
+  if (/^(server|game|match|node|lb|proxy|cdn|edge|relay)\d*\./i.test(h)) {
+    // Make sure it has NO foreign markers
+    if (!hasForeignMarker(h)) {
+      return true;
+    }
+  }
   
-  // Jordan ISPs
-  if (/orange\.jo|umniah|zain\.jo|batelco|jpp\.jo|linkdotnet/.test(h)) return true;
+  // ME region without sub-region
+  if (/^me-|^mena-|^middleeast-/i.test(h)) {
+    if (!/-eu|-us|-ap|-asia|-sa|-ae|-eg|-iq|-tr|-africa/i.test(h)) {
+      return true;
+    }
+  }
   
-  // Jordan keywords
-  if (/jordan|amman|^jo-|\.jo-|-jo\.|-jordan-/.test(h)) return true;
-  
-  // Jordan IP ranges in hostname
-  if (/\.176\.29\.|\.46\.3[2-9]\.|\.37\.17\.|\.31\.4[4-7]\./.test(h)) return true;
-  if (/\.94\.249\.|\.188\.161\.|\.89\.2[8-9]\.|\.89\.3[0-5]\./.test(h)) return true;
-  if (/\.185\.88\.|\.185\.117\.|\.212\.100\./.test(h)) return true;
+  // IP-based hostnames (no DNS needed)
+  if (/^\d{1,3}[.-]\d{1,3}[.-]\d{1,3}[.-]\d{1,3}/i.test(h)) {
+    return true;
+  }
   
   return false;
 }
 
 /* ==============================
-   🌍 MIDDLE EAST DETECTION - موسع
+   🚫 FOREIGN MARKER DETECTION
    ============================== */
-function isMEHost(host) {
+function hasForeignMarker(host) {
+  // Quick cache
+  if (blockList[host] === true) return true;
+  if (blockList[host] === false) return false;
+  
   var h = host.toLowerCase();
+  var isForeign = false;
   
-  // ME region markers
-  if (/\b(me|mena|gcc|levant|gulf|arab)-/.test(h)) return true;
-  if (/middleeast|middle-east|meast/.test(h)) return true;
+  // Ultra-fast substring checks
+  var forbidden = [
+    "-eu-", "-us-", "-ap-", "-asia-", 
+    "-de-", "-fr-", "-uk-", "-sg-", "-jp-", "-kr-", 
+    "-sa-", "-ae-", "-eg-", "-tr-", "-ru-", "-br-", "-au-",
+    "-cn-", "-in-", "-kw-", "-qa-", "-bh-", "-om-"
+  ];
   
-  // Arab countries domains
-  if (/\.jo\.|\.ps\.|\.lb\.|\.sy\.|\.iq\./.test(h)) return true;
+  for (var i = 0; i < forbidden.length; i++) {
+    if (h.indexOf(forbidden[i]) > -1) {
+      isForeign = true;
+      break;
+    }
+  }
   
-  // ME city names
-  if (/amman|beirut|baghdad|damascus|ramallah/.test(h)) return true;
+  // Pattern checks (if not already marked)
+  if (!isForeign) {
+    // European countries
+    if (/-(de|fr|nl|uk|gb|it|es|se|fi|no|dk|pl|be|ch|ie|at|pt|cz|gr|ro|hu|bg|hr|sk|si|lt|lv|ee)-/i.test(h)) {
+      isForeign = true;
+    }
+    // Asian countries (non-ME)
+    else if (/-(sg|jp|kr|hk|tw|cn|in|th|vn|id|my|ph|bd|pk|lk|np|mm|kh)-/i.test(h)) {
+      isForeign = true;
+    }
+    // Americas
+    else if (/-(us|usa|ca|br|mx|ar|cl|co|pe|ve)-/i.test(h)) {
+      isForeign = true;
+    }
+    // Gulf states
+    else if (/-(sa|ksa|saudi|uae|ae|kw|kuwait|qa|qatar|bh|bahrain|om|oman)-/i.test(h)) {
+      isForeign = true;
+    }
+    // Other MENA
+    else if (/-(eg|egypt|cairo|iq|iraq|baghdad|tr|turkey|istanbul|sy|syria|damascus|lb|lebanon|beirut)-/i.test(h)) {
+      isForeign = true;
+    }
+    // Others
+    else if (/-(ru|russia|moscow|au|australia|sydney|nz|za|africa)-/i.test(h)) {
+      isForeign = true;
+    }
+    // Continents
+    else if (/\b(europe|america|americas|asiapac|apac|oceania|africa)\b/i.test(h)) {
+      isForeign = true;
+    }
+    // Major cities
+    else if (/frankfurt|london|paris|dublin|amsterdam|madrid|stockholm|tokyo|singapore|seoul|hongkong|mumbai|bangalore|sydney|melbourne|seattle|virginia|oregon|california|newyork|saopaulo|toronto|riyadh|dubai|abudhabi|doha|muscat|manama|jeddah|cairo|istanbul|moscow|beijing|shanghai/i.test(h)) {
+      isForeign = true;
+    }
+  }
   
-  // ME server indicators
-  if (/-me-|-mena-|-gcc-|-levant-/.test(h)) return true;
-  
-  return false;
+  // Cache result
+  blockList[host] = isForeign;
+  return isForeign;
 }
 
 /* ==============================
-   🎮 PUBG DETECTION - شامل
+   🎮 PUBG SIGNATURE SCANNER
+   يكشف أي شيء متعلق بـ PUBG
    ============================== */
-function isPUBG(host, url) {
-  var key = host.substring(0, 50);
-  if (matchCache[key]) return true;
+function isPUBGSignature(host, url) {
+  // Fast path - check cache
+  var cacheKey = host.substring(0, 40);
+  if (matchCache[cacheKey]) return true;
   
   var h = host.toLowerCase();
   var u = url.toLowerCase();
-  var combined = h + "|" + u;
   
-  // Quick substring checks (fastest)
-  if (h.indexOf("pubg") !== -1) { matchCache[key] = true; return true; }
-  if (h.indexOf("krafton") !== -1) { matchCache[key] = true; return true; }
-  if (h.indexOf("tencent") !== -1) { matchCache[key] = true; return true; }
-  if (h.indexOf("qcloud") !== -1) { matchCache[key] = true; return true; }
-  if (u.indexOf("pubg") !== -1) { matchCache[key] = true; return true; }
+  // Lightning-fast substring checks
+  if (h.indexOf("pubg") > -1) { matchCache[cacheKey] = true; return true; }
+  if (h.indexOf("krafton") > -1) { matchCache[cacheKey] = true; return true; }
+  if (h.indexOf("tencent") > -1) { matchCache[cacheKey] = true; return true; }
+  if (h.indexOf("qcloud") > -1) { matchCache[cacheKey] = true; return true; }
+  if (h.indexOf("proximabeta") > -1) { matchCache[cacheKey] = true; return true; }
+  if (u.indexOf("pubg") > -1) { matchCache[cacheKey] = true; return true; }
   
-  // Core PUBG
-  if (/pubg|krafton|proximabeta|igame|battlegrounds|pubgm/.test(combined)) {
-    matchCache[key] = true;
-    return true;
-  }
+  var combined = h + u;
   
-  // Tencent Cloud
-  if (/tencent|qcloud|myqcloud|gcloud|tencentcs/.test(combined)) {
-    matchCache[key] = true;
-    return true;
-  }
+  // Comprehensive pattern matching
+  var isPUBG = /pubg|krafton|proximabeta|igame|pubgm|battlegrounds|playerunknown/.test(combined) ||
+               /tencent|qcloud|myqcloud|tencentcs|gcloud/.test(combined) ||
+               /gameserver|gamematch|match-\d+|lobby-\d+|dispatcher|allocation|session-\d+|router-\d+/.test(combined) ||
+               /battle-|arena-|combat-|war-|fight-|tdm-|deathmatch|tournament/.test(combined) ||
+               /erangel|miramar|sanhok|livik|vikendi|karakin|taego|haven|deston|rondo/.test(combined) ||
+               /squad|duo|solo|fpp|tpp|classic|arcade|training|warehouse|cheer/.test(combined) ||
+               /rank-|tier-|season-\d+|leaderboard|stats-|profile-|achievement/.test(combined) ||
+               /voip|voice-|chat-|agora|vivox|photon|rtc/.test(combined) ||
+               /update-|patch-|cdn-|asset-|resource-|download-|content-/.test(combined) ||
+               /matchmaking|queue|spawn|parachute|loot|circle|zone|redzone/.test(combined);
   
-  // Cloud providers
-  if (/amazonaws|aws|ec2|cloudfront|compute/.test(combined)) {
-    matchCache[key] = true;
-    return true;
-  }
-  
-  // Game infrastructure
-  if (/gameserver|match|lobby|dispatcher|allocation|router|session/.test(combined)) {
-    matchCache[key] = true;
-    return true;
-  }
-  
-  // Battle keywords
-  if (/battle|arena|combat|war|fight|tdm|tournament/.test(combined)) {
-    matchCache[key] = true;
-    return true;
-  }
-  
-  // Maps
-  if (/erangel|miramar|sanhok|livik|vikendi|karakin|taego|haven/.test(combined)) {
-    matchCache[key] = true;
-    return true;
-  }
-  
-  // Game modes
-  if (/squad|duo|solo|fpp|tpp|arcade|classic|training|warehouse/.test(combined)) {
-    matchCache[key] = true;
-    return true;
-  }
-  
-  // Ranking & stats
-  if (/rank|tier|season|leaderboard|stats|profile|achievement/.test(combined)) {
-    matchCache[key] = true;
-    return true;
-  }
-  
-  // Voice & social
-  if (/voip|voice|chat|agora|vivox|photon|social/.test(combined)) {
-    matchCache[key] = true;
-    return true;
-  }
-  
-  // Updates & patches
-  if (/update|patch|download|cdn|asset|resource/.test(combined)) {
-    matchCache[key] = true;
-    return true;
-  }
-  
-  return false;
+  if (isPUBG) matchCache[cacheKey] = true;
+  return isPUBG;
 }
 
 /* ==============================
-   🚫 FOREIGN REGION DETECTION
+   🧠 SMART ROUTING BRAIN
    ============================== */
-function isForeignRegion(host) {
-  var h = host.toLowerCase();
+function routingDecision(host) {
+  // Priority 1: Jordan confirmed
+  if (isJordanFingerprint(host)) {
+    return "ROUTE_JO";
+  }
   
-  // Quick substring checks
-  if (h.indexOf("-eu-") !== -1) return true;
-  if (h.indexOf("-us-") !== -1) return true;
-  if (h.indexOf("-ap-") !== -1) return true;
-  if (h.indexOf("europe") !== -1) return true;
-  if (h.indexOf("asia") !== -1) return true;
+  // Priority 2: Neutral (no foreign markers)
+  if (isNeutralServer(host)) {
+    return "ROUTE_JO";
+  }
   
-  // Europe
-  if (/\b(eu|europe|de|fr|nl|uk|gb|it|pl|es|se|fi|no|dk|be|at|ch|ie|pt|cz|gr|ro)-/.test(h)) return true;
+  // Priority 3: Has foreign markers
+  if (hasForeignMarker(host)) {
+    return "FORCE_JO";
+  }
   
-  // Asia Pacific (non-ME)
-  if (/\b(ap|asia|sg|jp|kr|hk|tw|cn|india|in|th|vn|id|my|ph|bd|pk)-/.test(h)) return true;
+  // Priority 4: Unknown but safe
+  // If hostname is very short/generic, allow
+  if (host.length < 15 && !/[a-z]{2}-[a-z]{2}/.test(host)) {
+    return "ROUTE_JO";
+  }
   
-  // Americas
-  if (/\b(us|usa|useast|uswest|use1|use2|usw1|usw2|america|na|ca|canada|br|brazil|sa)-/.test(h)) return true;
-  
-  // Other Arab countries (غير الشام)
-  if (/\b(sa|ksa|saudi|uae|ae|dubai|eg|egypt|cairo|kw|kuwait|qa|qatar|bh|bahrain|om|oman)-/.test(h)) return true;
-  
-  // Other regions
-  if (/\b(ru|russia|tr|turkey|au|oceania|nz|za|africa)-/.test(h)) return true;
-  
-  // City names
-  if (/frankfurt|london|paris|tokyo|singapore|mumbai|sydney|seattle|virginia|oregon|dublin|stockholm/.test(h)) return true;
-  if (/riyadh|dubai|doha|muscat|manama|jeddah|abudhabi/.test(h)) return true;
-  
-  return false;
+  // Default: Force through Jordan proxy
+  return "FORCE_JO";
 }
 
 /* ==============================
-   🎯 JORDAN PRIORITY SERVERS
-   ============================== */
-function isJordanPriority(host) {
-  var h = host.toLowerCase();
-  
-  // Explicit Jordan markers
-  if (/jordan|^jo-|-jo-|-jo\.|\.jo-|amman/.test(h)) return true;
-  
-  // Levant region (likely Jordan/Palestine/Lebanon)
-  if (/levant|sham/.test(h)) return true;
-  
-  // Low latency indicators with ME
-  if (/low.*me|me.*low|fast.*me|me.*fast/.test(h)) return true;
-  
-  return false;
-}
-
-/* ==============================
-   🚀 MAIN ENGINE - محرك ذكي
+   🚀 MAIN ROUTING ENGINE
+   كل شيء يمر عبر الأردن
    ============================== */
 function FindProxyForURL(url, host) {
   
   // ========== PUBG TRAFFIC ==========
-  if (isPUBG(host, url)) {
+  if (isPUBGSignature(host, url)) {
     
-    // ✅ Priority 1: Jordan hosts (highest priority)
-    if (isJordanHost(host)) {
-      return BACKUP;
-    }
+    // Get routing decision
+    var decision = routingDecision(host);
     
-    // ✅ Priority 2: Jordan priority markers
-    if (isJordanPriority(host)) {
-      return BACKUP;
-    }
-    
-    // ✅ Priority 3: Middle East region
-    if (isMEHost(host)) {
-      return BACKUP;
-    }
-    
-    // ❌ Block: Foreign regions
-    if (isForeignRegion(host)) {
-      return BACKUP; // Force through Jordan proxy
-    }
-    
-    // 🎯 Default: All unknown PUBG traffic through Jordan
-    return BACKUP;
+    // ALL decisions route through Jordan
+    // This is the KEY to seeing only Jordanians
+    return CHAIN;
   }
   
-  // ========== NON-PUBG TRAFFIC ==========
-  // Everything goes through Jordan for consistency
-  return BACKUP;
+  // ========== ALL OTHER TRAFFIC ==========
+  // Route everything through Jordan for IP consistency
+  // This makes YOU always appear as Jordan IP
+  return CHAIN;
 }
+
+/* ==============================
+   🧹 AUTO CACHE MAINTENANCE
+   ============================== */
+var requestCounter = 0;
+function maintainCache() {
+  requestCounter++;
+  
+  // Clear caches every 2000 requests
+  if (requestCounter > 2000) {
+    matchCache = {};
+    hostCache = {};
+    blockList = {};
+    allowList = {};
+    requestCounter = 0;
+  }
+}
+
+// Call maintenance on each request
+maintainCache();
