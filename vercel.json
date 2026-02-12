@@ -1,15 +1,12 @@
 {
+  "outputDirectory": ".",
   "headers": [
     {
-      "source": "/No.pac",
+      "source": "/(.*).pac",
       "headers": [
         {
           "key": "Content-Type",
           "value": "application/x-ns-proxy-autoconfig"
-        },
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=3600"
         }
       ]
     }
