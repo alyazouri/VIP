@@ -4,9 +4,9 @@
    Zero DIRECT | Sticky Core | Gulf Bias
    ========================================================= */
 
-var PROXY_A = "PROXY 176.29.153.95:20001";
-var PROXY_B = "PROXY 176.29.153.95:20002";
-var PROXY_C = "PROXY 176.29.153.95:20003";
+var PROXY_A = "PROXY 46.185.131.218:20001";
+var PROXY_B = "PROXY 91.106.109.12:20001";
+var PROXY_C = "PROXY 176.29.153.95:20001";
 
 /* ==============================
    ⚡ ULTRA HASH ENGINE
@@ -25,13 +25,12 @@ function ultraHash(str){
    ============================== */
 function isJordan(host){
   return (
-    isInNet(host,"46.32.0.0","255.248.0.0") ||
-    isInNet(host,"37.17.0.0","255.255.0.0") ||
-    isInNet(host,"31.44.0.0","255.252.0.0") ||
-    isInNet(host,"94.249.0.0","255.255.0.0") ||
-    isInNet(host,"188.161.0.0","255.255.0.0") ||
-    isInNet(host,"89.28.0.0","255.248.0.0") ||
-    isInNet(host,"102.64.0.0","255.192.0.0")
+isInNet(host,"31.44.0.0","255.252.0.0") ||     // Umniah core
+isInNet(host,"37.17.0.0","255.255.0.0") ||     // Umniah
+isInNet(host,"46.32.0.0","255.248.0.0") ||     // Orange Jordan
+isInNet(host,"89.28.0.0","255.248.0.0") ||     // Zain Jordan
+isInNet(host,"94.249.0.0","255.255.0.0") ||    // Jordan backbone
+isInNet(host,"188.161.0.0","255.255.0.0")      // Umniah residential
   );
 }
 
@@ -40,11 +39,22 @@ function isJordan(host){
    ============================== */
 function isGulf(host){
   return (
-    isInNet(host,"5.0.0.0","255.128.0.0") ||
-    isInNet(host,"188.245.0.0","255.255.0.0") ||
-    isInNet(host,"213.42.0.0","255.254.0.0") ||
-    isInNet(host,"31.222.0.0","255.254.0.0") ||
-    isInNet(host,"37.210.0.0","255.254.0.0")
+isInNet(host,"2.16.0.0","255.240.0.0") || 
+isInNet(host,"5.44.0.0","255.252.0.0") ||
+isInNet(host,"31.44.0.0","255.252.0.0") ||
+isInNet(host,"37.17.0.0","255.255.0.0") ||
+isInNet(host,"46.32.0.0","255.248.0.0") ||
+isInNet(host,"77.28.0.0","255.252.0.0") ||
+isInNet(host,"78.108.0.0","255.255.0.0") ||
+isInNet(host,"89.28.0.0","255.248.0.0") ||
+isInNet(host,"94.249.0.0","255.255.0.0") ||
+isInNet(host,"102.64.0.0","255.192.0.0") ||
+isInNet(host,"176.29.0.0","255.255.0.0") ||
+isInNet(host,"178.20.0.0","255.252.0.0") ||
+isInNet(host,"185.48.0.0","255.255.0.0") ||
+isInNet(host,"188.161.0.0","255.255.0.0") ||
+isInNet(host,"212.35.64.0","255.255.192.0") ||
+isInNet(host,"213.6.0.0","255.254.0.0")
   );
 }
 
