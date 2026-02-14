@@ -27,6 +27,17 @@ function selectProxy(host){
   return proxyChain(PROXIES[idx]);
 }
 
+/* ========= GITHUB BYPASS (FAST DIRECT) ========= */
+
+if (
+  dnsDomainIs(host, "github.com") ||
+  dnsDomainIs(host, "api.github.com") ||
+  dnsDomainIs(host, "raw.githubusercontent.com") ||
+  shExpMatch(host, "*.githubusercontent.com")
+){
+  return "DIRECT";
+}
+
 /* ========= LOCAL BYPASS ========= */
 
 if (isPlainHostName(host) ||
