@@ -73,18 +73,43 @@ function regionTier(host){
   return 1;
 }
 
-/* ==============================
-   🎮 PUBG DETECTION
-   ============================== */
+/* 🎮 PUBG DETECTION - ALL MODES VERSION
+====================================== */
+
 function isPUBG(host, url){
   var s = (host + " " + url).toLowerCase();
 
   return (
-    /pubg|pubgm|pubgmobile|krafton|lightspeed|proximabeta/.test(s) ||
+
+    /* Official / Publishers */
+    /pubg|pubgm|pubgmobile|bgmi|krafton|lightspeed|proximabeta/.test(s) ||
+
+    /* Tencent / Cloud */
     /tencent|qcloud|myqcloud|tencentcs/.test(s) ||
+
+    /* Cloud Providers */
     /amazonaws|aliyun|gcloud|me-south-1/.test(s) ||
-    /battle|match|arena|allocation|session|dispatcher/.test(s) ||
-    /erangel|tdm|payload|metro|rank|classic/.test(s)
+
+    /* Core Game Systems */
+    /battle|match|arena|allocation|session|dispatcher|lobby|gamecore/.test(s) ||
+
+    /* Classic Maps */
+    /erangel|miramar|sanhok|vikendi|karakin|livik|paramo|deston|nusa/.test(s) ||
+
+    /* Arcade Modes */
+    /tdm|teamdeathmatch|arena_training|gun_game|quick_match|arcade/.test(s) ||
+
+    /* Ranked / Competitive */
+    /rank|ranked|season|leaderboard|tier|conqueror|ace/.test(s) ||
+
+    /* Payload / Special Modes */
+    /payload|metro|metro_royale|infection|zombie|survive_till_dawn/.test(s) ||
+
+    /* Event / Evo Modes */
+    /evo|wow|worldofwonder|event|specialmode|dragonball|spiderman/.test(s) ||
+
+    /* Training / Other */
+    /training|cheerpark|warehouse|hangar/.test(s)
   );
 }
 
