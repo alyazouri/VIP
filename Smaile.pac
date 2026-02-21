@@ -1,134 +1,118 @@
 /*********************************************************************
- * PUBG-BEST.pac – أفضل سكربت PAC متكامل
- * هدفه: تكديس اللاعبين الأردنيين + توزيع ذكي + فشل تلقائي
- * لا يحتاج أي مكتبة أو ملف خارجي – فقط قم بتطبيقه كملف PAC
+ * PUBG-JO-ULTRA-HARD-LOCK-SMART.pac
+ * Ultra Hard Region Lock + Smart Routing
+ * جاهز للاستخدام
  *********************************************************************/
 
-// ====== 1. إعدادات يمكنك تغييرها ======
-const MAX_RTT        = 180;          // أقصى زمن بالمللي ثانية
-const FAIL_COUNT     = 3;            // عدد مرات الفشل قبل تجاهل البروكسي
-const SESSION_TTL    = 30;             // بالثواني
-const CACHE_TTL      = 60;           // كاش DNS
-const DIRECT         = "DIRECT";
+const JO_PROXY = "PROXY 37.44.38.20:443";
+const BLOCK    = "PROXY 0.0.0.0:0";
+const DIRECT   = "DIRECT";
 
-// ====== 2. حوض البروكسيات (أضف أو احذف) ======
-const PROXIES = [
-  {url:"PROXY 37.44.38.20:443", w:10}, // أعلى أولوية
-  {url:"PROXY 2.59.53.74:443",  w:8},
-  {url:"PROXY 185.51.227.10:443",w:6},
-  {url:"PROXY 87.236.232.50:443", w:4}
-];
-
-// ====== 3. نطاقات الأردن (CIDR) ======
+/* ==============================
+   نطاقات الأردن (أولوية قصوى)
+============================== */
 const JO_CIDR = [
-  ["37.44.38.20","255.255.255.255"],
-  ["2.59.53.74","255.255.255.255"],
-  ["185.51.224.0","255.255.252.0"],
-  ["87.236.232.0","255.255.255.0"]
+  ["176.29.0.0","255.255.0.0"],
+  ["178.20.224.0","255.255.224.0"],
+  ["46.32.96.0","255.255.240.0"],
+  ["82.212.64.0","255.255.192.0"],
+  ["213.6.0.0","255.255.0.0"]
 ];
 
-// ====== 4. بنية بيانات داخلية ======
-let CACHE  = {};   // كاش DNS
-let HEALTH = {};   // صحة البروكسيات
+/* ==============================
+   نطاق ~1500km حول الأردن
+   (قريب فقط)
+============================== */
+const REGION_CIDR = [
 
-// ====== 5. أدوات الوقت ======
-function now() { return Math.floor(Date.now()/1000); }
-function cacheGet(k){
-  let e = CACHE[k];
-  if(!e || e.expiry < now()) return null;
-  return e.value;
+  // فلسطين / إسرائيل
+  ["31.168.0.0","255.255.0.0"],
+  ["80.179.0.0","255.255.0.0"],
+
+  // لبنان
+  ["178.135.0.0","255.255.0.0"],
+
+  // شمال السعودية
+  ["5.32.0.0","255.224.0.0"],
+
+  // غرب العراق
+  ["37.236.0.0","255.255.0.0"],
+
+  // شمال مصر
+  ["41.32.0.0","255.224.0.0"]
+];
+
+/* ==============================
+   نطاقات Cloud / VPN / Anycast
+============================== */
+const VPN_CIDR = [
+  ["104.16.0.0","255.240.0.0"],   // Cloudflare
+  ["172.64.0.0","255.192.0.0"],
+  ["34.0.0.0","255.0.0.0"],       // Google Cloud
+  ["35.0.0.0","255.0.0.0"],
+  ["52.0.0.0","255.0.0.0"],       // AWS
+  ["54.0.0.0","255.0.0.0"],
+  ["20.0.0.0","255.0.0.0"],       // Azure
+  ["45.0.0.0","255.0.0.0"],
+  ["23.0.0.0","255.0.0.0"],
+  ["8.8.8.0","255.255.255.0"]     // Public DNS tricks
+];
+
+/* ==============================
+   أدوات
+============================== */
+
+function norm(h){
+  let i = h.indexOf(":");
+  return i > -1 ? h.substring(0,i) : h;
 }
-function cacheSet(k,v,ttl){
-  CACHE[k] = {value:v, expiry:now()+ttl};
+
+function isPUBG(h){
+  return /pubg|pubgm|tencent|krafton|lightspeed|levelinfinite/i.test(h);
 }
 
-// ====== 6. أدوات نصية ======
-function norm(h){ let i=h.indexOf(":"); return i>-1?h.substring(0,i):h; }
-
-// ====== 7. DNS + كاش ======
-function resolve(host){
-  let c = cacheGet("dns:"+host);
-  if(c) return c;
-  let ip = dnsResolve(host);
-  if(ip) cacheSet("dns:"+host,ip,CACHE_TTL);
-  return ip;
-}
-
-// ====== 8. GEOLocate بسيط (CIDR) ======
-function geoCountry(ip){
-  for(let i=0;i<JO_CIDR.length;i++){
-    if(isInNet(ip, JO_CIDR[i][0], JO_CIDR[i][1])) return "JO";
+function inList(ip, list){
+  for(let i=0;i<list.length;i++){
+    if(isInNet(ip, list[i][0], list[i][1])) return true;
   }
-  return "XX";
+  return false;
 }
 
-// ====== 9. كاشف PUBG ======
-function isPUBG(h){ return /pubg|pubgm|tencent|krafton|lightspeed|levelinfinite/i.test(h); }
-function isMatch(u,h){ return /match|battle|game|combat|realtime|sync|tick|room/i.test(u+h); }
-function isLobby(u,h){ return /lobby|matchmaking|queue|dispatch|gateway|region|join|recruit/i.test(u+h); }
-function isSocial(u,h){ return /friend|invite|squad|team|party|clan|presence|social/i.test(u+h); }
-function isCDN(u,h){ return /cdn|asset|resource|patch|update|media|content/i.test(u+h); }
+/* ==============================
+   الدالة الرئيسية
+============================== */
 
-// ====== 10. محاكي Ping (نستخدم hash بسيط) ======
-function mockRTT(proxyUrl){
-  let h = 0;
-  for(let i=0;i<proxyUrl.length;i++) h = (h + proxyUrl.charCodeAt(i)) & 0xFF;
-  return 50 + (h % 150); // 50-200 ms
-}
-
-// ====== 11. اختر أفضل بروكسي (وزن + فشل) ======
-function chooseProxy(){
-  let best = null, bestScore = -1;
-  for(let p of PROXIES){
-    let rec = HEALTH[p.url] || {score:0, fails:0};
-    if(rec.fails >= FAIL_COUNT) continue; // معطل
-    let rtt = mockRTT(p.url);
-    let score = (p.w * 1000) / (1 + rtt); // أعلى = أفضل
-    if(score > bestScore){ bestScore = score; best = p.url; }
-  }
-  return best || DIRECT;
-}
-
-// ====== 12. Session sticky مع TTL ======
-let SESSION = {}; // {host:{proxy, expiry}}
-function sticky(host){
-  let s = SESSION[host];
-  if(s && s.expiry > now()) return s.proxy;
-  let px = chooseProxy();
-  SESSION[host] = {proxy:px, expiry:now()+SESSION_TTL};
-  return px;
-}
-
-// ====== 13. صيانة HEALTH كل 10 ثوانٍ ======
-setInterval(()=>{
-  PROXIES.forEach(p=>{
-    let rec = HEALTH[p.url] || {score:0, fails:0};
-    let rtt = mockRTT(p.url);
-    if(rtt > MAX_RTT) rec.fails++; else rec.fails = 0;
-    HEALTH[p.url] = rec;
-  });
-}, 10000);
-
-// ====== 14. الدالة الرئيسية (FindProxyForURL) ======
 function FindProxyForURL(url, host){
+
   host = norm(host.toLowerCase());
-  if(!isPUBG(host)) return DIRECT;          // ليست لعبة
 
-  let ip = resolve(host);
-  if(!ip || ip.indexOf(":")>-1) return DIRECT; // لا IPv4
-
-  let country = geoCountry(ip);
-
-  if(isMatch(url,host)){
-    // الماتش: الأردنيون فقط يدخلون البروكسي الأردني
-    return (country === "JO") ? sticky(host) : DIRECT;
+  // أي شيء ليس PUBG → اتصال طبيعي
+  if(!isPUBG(host)){
+    return DIRECT;
   }
 
-  if(isLobby(url,host) || isSocial(url,host) || isCDN(url,host)){
-    // نريدهم يبقون في نفس المنطقة
-    return (country === "JO") ? sticky(host) : chooseProxy();
+  var ip = dnsResolve(host);
+
+  // منع IPv6 أو DNS فشل
+  if(!ip || ip.indexOf(":")>-1){
+    return BLOCK;
   }
 
-  // أي شيء آخر
-  return (country === "JO") ? sticky(host) : chooseProxy();
+  // منع VPN / Cloud
+  if(inList(ip, VPN_CIDR)){
+    return BLOCK;
+  }
+
+  // أولوية الأردن (أقل بنق)
+  if(inList(ip, JO_CIDR)){
+    return JO_PROXY;
+  }
+
+  // السماح فقط بنطاق قريب جداً
+  if(inList(ip, REGION_CIDR)){
+    return JO_PROXY;
+  }
+
+  // أي شيء خارج المنطقة → حجب كامل
+  return BLOCK;
 }
