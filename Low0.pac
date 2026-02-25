@@ -25,6 +25,7 @@ function ultraHash(str){
    ============================== */
 function isJordan(host){
   return (
+isInNet(host,"46.185.128.0","255.255.0.0") ||
 isInNet(host,"188.123.0.0","255.255.0.0") ||
 isInNet(host,"212.35.0.0","255.255.0.0") ||
 isInNet(host,"94.249.0.0","255.255.0.0") ||
