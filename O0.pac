@@ -10,7 +10,7 @@ var ENABLE_SOCKS = true;
 var ENABLE_HTTP  = true;
 
 var FIXED_PROXY = {
-  ip: "91.106.109.12",
+  ip: "91.106.109.50",
   socksPorts: [20000, 20001, 20002, 40000, 40001, 8000, 8001, 30000],
   httpPorts:  [8080, 8081, 8085, 8087, 8088, 8880],
   http3: true
