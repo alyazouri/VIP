@@ -1,382 +1,220 @@
-// ========================================
-// PUBG Mobile Proxy - Auto-Updated from RIPE NCC
-// Updated: 2025-01-21
-// Source: RIPE NCC Database + ASN Data
-// ========================================
+// ======================================================
+// PAC – PUBG Mobile الأردن (محلي) + UDP / HTTP Proxy
+// تحديث: نطاقات IPv4 & IPv6 كاملة لـ Tencent / PUBG
+// ======================================================
 
-var LOBBY_PROXY = “PROXY 176.29.153.95:9030; PROXY 212.35.66.45:9030; PROXY 46.185.131.218:443; PROXY 82.212.84.33:5000”;
-var MATCH_PROXY = “PROXY 176.29.153.95:20001”;
-var VOICE_PROXY = “PROXY 82.212.84.33:20001; PROXY 82.212.84.33:10012”;
-var BLOCK = “PROXY 127.0.0.1:9”;
+var FORCE_ALL   = true;   // إجبار كل الاتصالات على البروكسي
+var BLOCK_IR    = true;   // حظر نطاقات .ir
+var ENABLE_SOCKS = true;  // تفعيل SOCKS5
+var ENABLE_HTTP  = true;  // تفعيل HTTP Proxy
 
-// ========================================
-// JORDAN PREFIXES (من RIPE NCC + ASN)
-// AS48832 (Zain), AS8376 (Orange), AS47887 (Umniah)
-// ========================================
-var JO_PREFIXES = {
-// Core Jordan ranges (RIPE verified)
-“82.212.”: 1, “188.123.”: 1, “37.202.”: 1, “212.35.”: 1,
-“176.29.”: 1, “91.106.”: 1, “46.32.”: 1, “46.185.”: 1,
-“86.108.”: 1, “92.253.”: 1, “94.249.”: 1, “188.247.”: 1,
-“149.200.”: 1, “176.28.”: 1,
-
-// Zain Jordan (AS48832)
-“185.117.”: 1, “185.183.”: 1, “5.104.”: 1, “185.23.”: 1,
-
-// Orange Jordan (AS8376)
-“78.135.”: 1, “78.138.”: 1, “37.48.”: 1, “37.49.”: 1,
-“37.50.”: 1, “37.51.”: 1, “37.75.”: 1,
-
-// Umniah (AS47887)
-“77.44.”: 1, “185.107.”: 1,
-
-// Additional Jordan ranges
-“79.134.”: 1, “79.173.”: 1, “81.21.”: 1, “81.28.”: 1,
-“80.90.”: 1, “62.72.”: 1, “62.150.”: 1, “62.251.”: 1,
-“85.159.”: 1, “109.107.”: 1, “109.237.”: 1, “188.161.”: 1,
-“193.188.”: 1, “193.227.”: 1, “195.135.”: 1, “195.170.”: 1,
-“195.228.”: 1, “195.229.”: 1, “213.6.”: 1, “213.42.”: 1,
-“213.139.”: 1, “213.186.”: 1, “217.23.”: 1, “217.29.”: 1,
-“217.144.”: 1, “217.171.”: 1, “5.45.”: 1, “5.198.”: 1,
-“5.199.”: 1
+// البروكسي المحلي + بورتات UDP للعبة
+var FIXED_PROXY = {
+  ip: "91.106.109.12",
+  socksPorts: [20000, 20001, 20002, 40000, 40001, 8000, 8001, 30000],
+  httpPorts:  [8080, 8081, 8085, 8087, 8088, 8880],
+  http3: true
 };
 
-// ========================================
-// GULF PREFIXES (من RIPE NCC)
-// Saudi Arabia, UAE, Kuwait, Bahrain, Qatar, Oman
-// ========================================
-var GULF_PREFIXES = {
-// Bahrain (أقرب دولة خليجية)
-“185.125.”: 1, “46.183.”: 1, “37.131.”: 1, “80.241.”: 1,
-“84.235.”: 1, “62.215.”: 1, “195.36.”: 1,
-
-// Saudi Arabia
-“212.71.”: 1, “185.193.”: 1, “185.194.”: 1, “185.195.”: 1,
-“185.196.”: 1, “94.26.”: 1, “95.177.”: 1, “46.152.”: 1,
-“37.224.”: 1, “188.245.”: 1, “37.104.”: 1, “151.236.”: 1,
-“213.130.”: 1, “213.150.”: 1,
-
-// UAE
-“5.62.”: 1, “31.192.”: 1, “31.193.”: 1, “86.96.”: 1,
-“94.200.”: 1, “94.201.”: 1, “94.202.”: 1, “217.164.”: 1,
-“213.42.”: 1, “195.229.”: 1, “85.154.”: 1,
-
-// Kuwait
-“62.84.”: 1, “82.178.”: 1, “91.140.”: 1, “94.128.”: 1,
-“151.232.”: 1,
-
-// Qatar
-“37.210.”: 1, “89.211.”: 1, “185.56.”: 1,
-
-// Oman
-“185.64.”: 1, “5.36.”: 1, “37.205.”: 1
-};
-
-// ========================================
-// AFGHANISTAN PREFIXES (للحظر - من RIPE)
-// ========================================
-var AF_PREFIXES = {
-“58.147.”: 1, “59.153.”: 1, “61.5.”: 1, “91.109.”: 1,
-“103.5.”: 1, “103.13.”: 1, “103.17.”: 1, “103.18.”: 1,
-“103.23.”: 1, “103.28.”: 1, “45.65.”: 1, “45.116.”: 1,
-“175.107.”: 1, “202.79.”: 1
-};
-
-// ========================================
-// FAR-REGION BLOCKS (آسيا، أوروبا، أمريكا)
-// ========================================
-var BLOCKED_PREFIXES = [
-// Asia Pacific
-“8.222.”, “47.245.”, “43.132.”, “18.163.”, “13.228.”, “13.229.”,
-“13.250.”, “52.220.”, “54.169.”, “54.251.”, “175.41.”, “119.81.”,
-“103.28.”, “103.29.”, “203.104.”, “210.16.”, “52.74.”, “52.77.”,
-“8.210.”, “47.74.”, “47.88.”, “120.76.”, “121.40.”, “139.224.”,
-
-// Europe
-“18.185.”, “3.120.”, “52.58.”, “35.156.”, “52.28.”, “52.29.”,
-“18.194.”, “3.64.”, “3.65.”, “3.66.”, “52.30.”, “18.196.”,
-“52.59.”, “18.157.”, “3.121.”, “3.122.”, “3.123.”,
-
-// Americas
-“54.218.”, “52.88.”, “34.208.”, “18.237.”, “52.36.”, “54.244.”,
-“35.162.”, “44.228.”, “34.220.”, “54.200.”, “52.24.”, “18.232.”,
-“54.85.”, “34.192.”, “52.90.”, “34.224.”
+// ===================== DOMAINS ========================
+var GAME_DOMAINS = [
+  "igamecj.com", "igamepubg.com", "pubgmobile.com", "tencentgames.com",
+  "proximabeta.com", "proximabeta.net", "tencentyun.com", "qcloud.com",
+  "qcloudcdn.com", "gtimg.com", "game.qq.com", "cdn-ota.qq.com",
+  "cdngame.tencentyun.com", "gcloud.qq.com", "gpubgm.com",
+  "amsoveasea.com", "dnsv1.com", "myqcloud.com", "dnspod.com",
+  "tencent-cloud.net", "tencentcloudapi.com", "tcloudbaseapp.com"
 ];
 
-// ========================================
-// SAFE DIRECT (System & CDN)
-// ========================================
-var SAFE_DIRECT = [
-“captive.apple.com”, “time.apple.com”, “ocsp.apple.com”,
-“clients3.google.com”, “gstatic.com”, “googleapis.com”
+var LOCAL_DOMAINS = [
+  "pubg.jo", "jo-gaming.net", "localmatch.pubg.com",
+  "matchmaking.jo", "pubg-local.jo", "jo-server.pubg.com"
 ];
 
-var CDN_DIRECT = [
-“youtube.com”, “googlevideo.com”, “ytimg.com”,
-“fbcdn.net”, “facebook.com”, “instagram.com”,
-“cdninstagram.com”, “tiktokcdn.com”, “tiktokv.com”,
-“akamaihd.net”, “cloudfront.net”
+var KEYWORDS = [
+  "pubg", "tencent", "proximabeta", "tencentyun",
+  "qcloud", "gcloud", "gpubgm", "igamepubg"
 ];
 
-// ========================================
-// HELPER FUNCTIONS
-// ========================================
-function startsWithAny(ip, table) {
-for (var k in table) {
-if (ip.indexOf(k) === 0) return true;
-}
-return false;
-}
+// ==================== IPv4 CIDR =======================
+// نطاقات Tencent Cloud الرئيسية (AS132203 / AS133478)
+// تغطي خوادم PUBG Mobile في آسيا / الشرق الأوسط / عالمياً
+var IPV4_RANGES = [
+  // --- Tencent Cloud International ---
+  ["1.12.0.0",    "255.252.0.0"],   // 1.12.0.0/14
+  ["43.128.0.0",  "255.252.0.0"],   // 43.128.0.0/14
+  ["43.132.0.0",  "255.252.0.0"],   // 43.132.0.0/14
+  ["43.136.0.0",  "255.252.0.0"],   // 43.136.0.0/14
+  ["43.140.0.0",  "255.252.0.0"],   // 43.140.0.0/14
+  ["43.148.0.0",  "255.252.0.0"],   // 43.148.0.0/14
+  ["43.152.0.0",  "255.252.0.0"],   // 43.152.0.0/14  (Singapore/SEA)
+  ["43.156.0.0",  "255.252.0.0"],   // 43.156.0.0/14
+  ["43.158.0.0",  "255.254.0.0"],   // 43.158.0.0/15
+  ["43.160.0.0",  "255.252.0.0"],   // 43.160.0.0/14
+  ["43.164.0.0",  "255.252.0.0"],   // 43.164.0.0/14  (Singapore/SEA)
+  ["43.168.0.0",  "255.252.0.0"],   // 43.168.0.0/14
+  ["43.172.0.0",  "255.252.0.0"],   // 43.172.0.0/14
+  ["43.176.0.0",  "255.240.0.0"],   // 43.176.0.0/12  (بلوك كبير)
+  ["49.51.0.0",   "255.255.128.0"], // 49.51.0.0/17
+  // --- Tencent Cloud China/HK ---
+  ["101.32.0.0",  "255.248.0.0"],   // 101.32.0.0/13
+  ["103.41.133.0","255.255.255.0"], // 103.41.133.0/24
+  ["119.28.0.0",  "255.252.0.0"],   // 119.28.0.0/14
+  ["120.232.0.0", "255.252.0.0"],   // 120.232.0.0/14
+  ["124.156.0.0", "255.252.0.0"],   // 124.156.0.0/14
+  ["129.226.0.0", "255.252.0.0"],   // 129.226.0.0/14
+  ["150.109.0.0", "255.255.0.0"],   // 150.109.0.0/16
+  ["156.240.0.0", "255.255.0.0"],   // 156.240.0.0/16
+  ["162.62.0.0",  "255.254.0.0"],   // 162.62.0.0/15  (PUBG Mobile معروف)
+  ["170.106.0.0", "255.255.0.0"],   // 170.106.0.0/16
+  ["175.27.0.0",  "255.255.0.0"],   // 175.27.0.0/16
+  ["203.205.0.0", "255.255.192.0"], // 203.205.0.0/18
+  ["211.152.0.0", "255.255.192.0"], // 211.152.0.0/18
+  // --- نطاقات إضافية موثقة في PUBG Mobile ---
+  ["134.175.0.0", "255.255.0.0"],   // 134.175.0.0/16
+  ["140.143.0.0", "255.255.0.0"],   // 140.143.0.0/16
+  ["193.112.0.0", "255.255.0.0"],   // 193.112.0.0/16
+  ["212.129.0.0", "255.255.0.0"],   // 212.129.0.0/16
+  ["119.29.0.0",  "255.255.0.0"],   // 119.29.0.0/16
+  ["125.94.0.0",  "255.254.0.0"],   // 125.94.0.0/15
+  ["43.159.0.0",  "255.255.0.0"]    // 43.159.0.0/16  (Anycast CDN موثق)
+];
 
-function isJordanIP(ip) {
-if (!ip) return false;
+// ==================== IPv6 PREFIXES ===================
+// نطاقات IPv6 لـ Tencent Cloud (AS132203 / AS133478)
+var IPV6_PREFIXES = [
+  "2402:4e00:",   // Tencent Cloud International /32
+  "2402:4e00:1",  // sub-range /40
+  "2402:4e00:2",  // sub-range /40
+  "2409:8c00:",   // Tencent Cloud China
+  "2409:8c1e:",   // Tencent Cloud
+  "2409:8c54:",   // Tencent Cloud
+  "2409:8c80:",   // Tencent Cloud
+  "2409:8c08:",   // Tencent Cloud
+  "240e:0:a:",    // Tencent CDN
+  "2408:871a:",   // Tencent / QQ
+  "2408:8756:",   // Tencent Cloud
+  "2a0a:e5c0:",   // Tencent Cloud EU
+  "2a0a:e5c1:",   // Tencent Cloud EU
+  "2603:1020:200:", // Tencent Cloud region
+  "2001:250:",    // CERNET China (بعض خوادم QQ)
+  "240c::",       // Tencent-affiliated
+  "2001:4860:"    // Google/Anycast (CDN مستخدم أحياناً)
+];
 
-if (startsWithAny(ip, JO_PREFIXES)) return true;
-
-// CIDR verification (major ranges)
-if (isInNet(ip, “176.28.128.0”, “255.255.128.0”)) return true; // /17
-if (isInNet(ip, “176.29.0.0”, “255.255.0.0”)) return true;     // /16
-if (isInNet(ip, “46.185.128.0”, “255.255.128.0”)) return true; // /17
-if (isInNet(ip, “86.108.0.0”, “255.255.128.0”)) return true;   // /17
-if (isInNet(ip, “92.253.0.0”, “255.255.128.0”)) return true;   // /17
-if (isInNet(ip, “94.249.0.0”, “255.255.128.0”)) return true;   // /17
-if (isInNet(ip, “212.35.64.0”, “255.255.224.0”)) return true;  // /19
-if (isInNet(ip, “188.247.64.0”, “255.255.224.0”)) return true; // /19
-if (isInNet(ip, “91.106.0.0”, “255.255.0.0”)) return true;     // /16
-if (isInNet(ip, “82.212.64.0”, “255.255.192.0”)) return true;  // /18
-if (isInNet(ip, “149.200.128.0”, “255.255.128.0”)) return true;// /17
-
-return false;
-}
-
-function isGulfIP(ip) {
-if (!ip) return false;
-
-if (startsWithAny(ip, GULF_PREFIXES)) return true;
-
-// CIDR verification (major Gulf ranges)
-// Bahrain
-if (isInNet(ip, “185.125.188.0”, “255.255.252.0”)) return true;
-
-// Saudi Arabia
-if (isInNet(ip, “212.71.0.0”, “255.255.0.0”)) return true;
-if (isInNet(ip, “185.193.64.0”, “255.255.192.0”)) return true;
-if (isInNet(ip, “94.26.0.0”, “255.255.0.0”)) return true;
-
-// UAE
-if (isInNet(ip, “31.192.0.0”, “255.254.0.0”)) return true;
-if (isInNet(ip, “86.96.0.0”, “255.255.0.0”)) return true;
-
-// Kuwait
-if (isInNet(ip, “62.84.0.0”, “255.255.0.0”)) return true;
-if (isInNet(ip, “82.178.0.0”, “255.255.0.0”)) return true;
-
-// Qatar
-if (isInNet(ip, “37.210.0.0”, “255.255.0.0”)) return true;
-
-// Oman
-if (isInNet(ip, “185.64.0.0”, “255.255.0.0”)) return true;
-
-return false;
-}
-
-function isAfghanistanIP(ip) {
-if (!ip) return false;
-
-if (startsWithAny(ip, AF_PREFIXES)) return true;
-
-// CIDR confirmation
-if (isInNet(ip, “58.147.128.0”, “255.255.224.0”)) return true;
-if (isInNet(ip, “59.153.124.0”, “255.255.252.0”)) return true;
-if (isInNet(ip, “61.5.192.0”, “255.255.240.0”)) return true;
-if (isInNet(ip, “91.109.216.0”, “255.255.248.0”)) return true;
-
-return false;
+// ======================= HELPERS =======================
+function bracketHost(ip) {
+  return (ip.indexOf(":") !== -1 && ip.indexOf(".") === -1)
+    ? "[" + ip + "]" : ip;
 }
 
-function isPUBG(host) {
-host = host.toLowerCase();
-return /(pubg|pubgm|pubgmobile|intlgame|igamecj|proximabeta|tencent|qq|qcloud|gcloudsdk|krafton|lightspeed|amsoveasea|vmpone|vmp|gme|gamecenter|wow|worldofwonder|ugc|creative|creation|creations)/.test(host);
+function hostInList(h, list) {
+  h = (h || "").toLowerCase();
+  for (var i = 0; i < list.length; i++) {
+    var d = list[i].toLowerCase();
+    if (h === d || h === d + ":" || h.indexOf("." + d) !== -1
+        || shExpMatch(h, "*." + d) || dnsDomainIs(h, d)) {
+      return true;
+    }
+  }
+  return false;
 }
 
-function isLobbyTraffic(url, host) {
-var s = (url + host).toLowerCase();
-return /(lobby|matchmaking|matching|queue|room|recruit|team|squad|party|invite|gate|dispatcher|router|region|allocation)/.test(s);
+function hasKeyword(s) {
+  s = (s || "").toLowerCase();
+  for (var i = 0; i < KEYWORDS.length; i++) {
+    if (s.indexOf(KEYWORDS[i]) !== -1) return true;
+  }
+  return false;
 }
 
-function isWOWTraffic(url, host) {
-var s = (url + host).toLowerCase();
-return /(worldofwonder|wow|ugc|creative|creation|creations|room|rooms|customroom|custom-room|map|maps|template|templates|featured|trending|popular|recommend|daily|weekly|community|workshop|editor|publish)/.test(s);
+function isIranTLD(host) {
+  host = (host || "").toLowerCase();
+  return host === "ir" || host.slice(-3) === ".ir"
+      || host.indexOf(".ir.") !== -1;
 }
 
-function isArenaTraffic(url, host) {
-var s = (url + host).toLowerCase();
-return /(arena|tdm|deathmatch|teamdeathmatch|team[*-]?deathmatch|gun|gungame|gun[*-]?game|training|arenatraining|arena[_-]?training|ultimate|ultimatearena|warehouse|hangar)/.test(s);
+// فحص IPv4 ضمن CIDR باستخدام isInNet
+function isIPv4InRanges(host) {
+  for (var i = 0; i < IPV4_RANGES.length; i++) {
+    if (isInNet(host, IPV4_RANGES[i][0], IPV4_RANGES[i][1])) {
+      return true;
+    }
+  }
+  return false;
 }
 
-function isMatchTraffic(url, host) {
-var s = (url + host).toLowerCase();
-return /(game|battle|fight|combat|play|gs.|gss|gameserver|logic|session|instance|zone|shard|node|cell|scene|realtime|action|frame)/.test(s);
+// فحص IPv6 بمطابقة البادئة (Prefix match)
+// PAC لا يدعم isInNet لـ IPv6 — نستخدم مقارنة النص
+function isIPv6InRanges(host) {
+  // إزالة الأقواس إن وجدت
+  var h = (host || "").toLowerCase()
+           .replace(/^\[/, "").replace(/\]$/, "");
+  // يجب أن يحتوي على ":" ليكون IPv6
+  if (h.indexOf(":") === -1) return false;
+  for (var i = 0; i < IPV6_PREFIXES.length; i++) {
+    if (h.indexOf(IPV6_PREFIXES[i].toLowerCase()) === 0) {
+      return true;
+    }
+  }
+  return false;
 }
 
-function isVoiceTraffic(url, host) {
-var s = (url + host).toLowerCase();
-return /(voice|rtc|webrtc|voip|audio|mic|talk|channel|stream|speech|sound)/.test(s);
+// هل العنوان IP مباشرة (وليس اسم نطاق)؟
+function isIPAddress(host) {
+  return /^[\d.]+$/.test(host) || /^[\[0-9a-fA-F:]+\]?$/.test(host);
 }
 
-function normalizeHost(host) {
-var i = host.indexOf(”:”);
-if (i !== -1) return host.substring(0, i);
-return host;
+// ===================== BUILD PROXY =====================
+function buildTokens(proxy) {
+  if (!proxy) return [];
+  var toks = [];
+  var host = bracketHost(proxy.ip);
+  if (ENABLE_SOCKS) {
+    var sp = proxy.socksPorts || [];
+    for (var s = 0; s < sp.length; s++) {
+      toks.push("SOCKS5 " + host + ":" + sp[s]);
+    }
+  }
+  if (ENABLE_HTTP) {
+    var hp = proxy.httpPorts || [];
+    for (var h = 0; h < hp.length; h++) {
+      toks.push("PROXY " + host + ":" + hp[h]);
+    }
+  }
+  return toks;
 }
 
-function isIPv4(ip) {
-return ip && ip.indexOf(”.”) !== -1;
+function buildProxyChain() {
+  var all = buildTokens(FIXED_PROXY);
+  return (all.length === 0) ? "PROXY 127.0.0.1:9" : all.join("; ");
 }
 
-function getRealIPv4(host) {
-var ip = dnsResolve(host);
-if (isIPv4(ip)) return ip;
-return null;
-}
-
-function isPrivateOrLocalIP(ip) {
-if (!isIPv4(ip)) return false;
-return (
-isInNet(ip, “10.0.0.0”, “255.0.0.0”) ||
-isInNet(ip, “172.16.0.0”, “255.240.0.0”) ||
-isInNet(ip, “192.168.0.0”, “255.255.0.0”) ||
-isInNet(ip, “127.0.0.0”, “255.0.0.0”) ||
-isInNet(ip, “169.254.0.0”, “255.255.0.0”)
-);
-}
-
-// ========================================
-// TIMING PRESSURE (Jordan priority)
-// ========================================
-var RECRUIT_JO_ONLY_MS = 90000;
-var RECRUIT_START_TS = Date.now();
-function recruitJOOnly() {
-return (Date.now() - RECRUIT_START_TS) < RECRUIT_JO_ONLY_MS;
-}
-
-var ARENA_JO_ONLY_MS = 45000;
-var ARENA_GULF_ONLY_MS = 180000;
-var ARENA_START_TS = Date.now();
-function arenaPhase() {
-var dt = Date.now() - ARENA_START_TS;
-if (dt < ARENA_JO_ONLY_MS) return “JO_ONLY”;
-if (dt < ARENA_GULF_ONLY_MS) return “JO_OR_GULF”;
-return “AFTER”;
-}
-
-var WOW_JO_ONLY_MS = 60000;
-var WOW_START_TS = Date.now();
-function wowJOOnly() {
-return (Date.now() - WOW_START_TS) < WOW_JO_ONLY_MS;
-}
-
-// ========================================
-// MAIN ROUTING FUNCTION
-// ========================================
+// ======================= MAIN ==========================
 function FindProxyForURL(url, host) {
-host = normalizeHost(host.toLowerCase());
+  host = host || url;
 
-// SAFE DIRECT
-for (var i = 0; i < SAFE_DIRECT.length; i++) {
-if (dnsDomainIs(host, SAFE_DIRECT[i])) return “DIRECT”;
-}
+  // 1. حظر نطاقات إيران
+  if (BLOCK_IR && isIranTLD(host)) return "PROXY 127.0.0.1:9";
 
-// CDN DIRECT
-for (var j = 0; j < CDN_DIRECT.length; j++) {
-if (shExpMatch(host, “*” + CDN_DIRECT[j])) return “DIRECT”;
-}
+  // 2. عناوين IP مباشرة → فحص النطاقات
+  if (isIPAddress(host)) {
+    if (isIPv4InRanges(host) || isIPv6InRanges(host)) {
+      return buildProxyChain();
+    }
+  }
 
-if (isPlainHostName(host)) return BLOCK;
+  // 3. دومينات اللعبة / الكلمات المفتاحية
+  if (hostInList(host, GAME_DOMAINS)
+   || hostInList(host, LOCAL_DOMAINS)
+   || hasKeyword(host)
+   || hasKeyword(url)) {
+    return buildProxyChain();
+  }
 
-// Non-PUBG traffic
-if (!isPUBG(host)) return “DIRECT”;
+  // 4. باقي المواقع إجبارياً (FORCE_ALL)
+  if (FORCE_ALL) return buildProxyChain();
 
-// Resolve IPv4
-var ip = getRealIPv4(host);
-if (!ip) return BLOCK;
-if (isPrivateOrLocalIP(ip)) return BLOCK;
-
-// Hard block Afghanistan
-if (isAfghanistanIP(ip)) return BLOCK;
-
-// Quick block far regions
-for (var b = 0; b < BLOCKED_PREFIXES.length; b++) {
-if (ip.indexOf(BLOCKED_PREFIXES[b]) === 0) return BLOCK;
-}
-
-// GEO gate: Jordan or Gulf only
-var JO = isJordanIP(ip);
-var GF = isGulfIP(ip);
-
-if (!(JO || GF)) return BLOCK;
-
-// ========================================
-// WOW / UGC / ROOMS
-// ========================================
-if (isWOWTraffic(url, host)) {
-if (wowJOOnly()) {
-if (JO) return LOBBY_PROXY;
-return BLOCK;
-}
-if (JO || GF) return LOBBY_PROXY;
-return BLOCK;
-}
-
-// ========================================
-// ARENA (TDM/Gun/Training)
-// ========================================
-if (isArenaTraffic(url, host)) {
-var phase = arenaPhase();
-
-```
-if (phase === "JO_ONLY") {
-  if (JO) return LOBBY_PROXY;
-  return BLOCK;
-}
-
-if (phase === "JO_OR_GULF") {
-  if (JO || GF) return LOBBY_PROXY;
-  return BLOCK;
-}
-
-if (JO || GF) return LOBBY_PROXY;
-return BLOCK;
-```
-
-}
-
-// ========================================
-// RECRUIT / LOBBY
-// ========================================
-if (isLobbyTraffic(url, host)) {
-if (recruitJOOnly()) {
-if (JO) return LOBBY_PROXY;
-return BLOCK;
-}
-if (JO || GF) return LOBBY_PROXY;
-return BLOCK;
-}
-
-// ========================================
-// VOICE
-// ========================================
-if (isVoiceTraffic(url, host)) {
-return VOICE_PROXY;
-}
-
-// ========================================
-// MATCH (Classic/Ranked)
-// ========================================
-if (isMatchTraffic(url, host)) {
-return MATCH_PROXY;
-}
-
-// Default PUBG
-return MATCH_PROXY;
+  // 5. قطع الاتصال (fallback)
+  return "PROXY 127.0.0.1:9";
 }
