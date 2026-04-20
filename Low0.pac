@@ -4,9 +4,9 @@
    Zero DIRECT | Sticky Core | Gulf Bias
    ========================================================= */
 
-var PROXY_A = "PROXY 37.220.121.71:20001";
-var PROXY_B = "PROXY 37.220.117.32:20001";
-var PROXY_C = "PROXY 176.29.153.95:20001";
+var PROXY_A = "PROXY 46.185.230.166:20001";
+var PROXY_B = "PROXY 37.220.121.71:20005";
+var PROXY_C = "PROXY 212.35.66.45:20005";
 
 /* ==============================
    ⚡ ULTRA HASH ENGINE
