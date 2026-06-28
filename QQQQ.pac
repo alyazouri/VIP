@@ -1,16 +1,15 @@
 // ============================================================================
-// ⭐ THE PURE JORDAN MATCHMAKING PAC SCRIPT — VIP 100% INTRA-JORDAN LOBBY ⭐
-// [ 100% JORDANIAN MATCHES & PLAYERS | ZERO MIXED LOBBIES | FULL ROUTER QoS ]
+// ⭐ THE RADICAL PURE-JORDAN PAC SCRIPT — VIP 100% JORDANIAN PLANE & SQUAD ⭐
+// [ RADICAL QoS/GCLOUD GUILLOTINE | 100% AMMAN DEDICATED POOL | 100% SAFE ]
 // ============================================================================
 
 // ================= 1. PROXIES & FAILOVER CONFIGURATION =================
 var DIRECT = "DIRECT";
-var BLOCK  = "PROXY 127.0.0.1:9";
-// منفذ الألعاب الأردني السريع المخصص لقفل المباريات المحلية
-var MATCH_JO = "PROXY 46.185.131.218:20005; DIRECT";
+var BLOCK  = "PROXY 127.0.0.1:9"; // مقصلة الإعدام الفوري لأي سيرفر مخلط خارج الأردن
+var MATCH_JO = "PROXY 46.185.131.218:20005; DIRECT"; // منفذ الألعاب الأردني السريع
 
 // ================= 2. THE 3 ELITE JORDANIAN ROTATION POOLS (IPV4) =================
-// تعمل في خلفية اللوبي والتوزيع وتدور كل دقيقتين لضمان دخول لاعبين أردنيين فقط
+// نخبة النطاقات الأردنية المحلية في عمّان وإربد والزرقاء (صفر مسارات خارجية)
 
 // 🟢 المجموعة الأولى: نخبة خوادم شركة زين الأردنية (Zain VIP Pool)
 var JORDAN_POOL_ZAIN_V4 = [
@@ -39,7 +38,7 @@ var JORDAN_POOL_UMNIAH_V4 = [
 ];
 var PROXY_POOL_UMNIAH = ["PROXY 46.185.131.218:80; DIRECT", "PROXY 46.185.131.218:443; DIRECT"];
 
-// القائمة التجميعية للتحقق من المباريات الأردنية 100%
+// القائمة التجميعية الحصرية لبطاقات التحقق من هوية السيرفر الأردني
 var JORDAN_MATCH_IPV4 = JORDAN_POOL_ZAIN_V4.concat(JORDAN_POOL_ORANGE_V4, JORDAN_POOL_UMNIAH_V4);
 
 // ================= 3. THE 3 ELITE ROTATION POOLS (IPV6) =================
@@ -129,13 +128,14 @@ function resolvePinned(host){
 
 // ================= 6. ELITE DETECTION ENGINE (REGEX) =================
 
-// ⚡⚡ 1. محرك التوربو الصارم (DIRECT TURBO ENGINE) ⚡⚡
-// مخصص حصرياً لـ (حماية الحساب + مكافحة الغش + تسجيل الدخول + قياس البينغ)
-// يضمن أمان حسابك 100% ويجعل قراءة البينغ تأخذ كامل طاقة الراوتر (تم إزالة المباريات لمنع الخلط)
-var REGEX_DIRECT_TURBO = /security|anticheat|sguard|ace|mprotect|gpro|fairplay|guard|safe|ban|captcha|verify|csec|secops|telemetry|tdmsec|scantool|tencentprotect|login|auth|account|oauth|openid|connect|wechat|qq|gcloud|pass|sso|vmp|facebook|google|apple|twitter|vk|qos|ping|echo|delay|speed|measure|network|acc|unite|multiping|cloudtest|test|flight|report|heartbeat/i;
+// 🛡️⚡ 1. محرك الأمان المطلق (SECURITY & AUTH DIRECT ONLY) ⚡🛡️
+// يحتوي *فقط* على أنظمة الحماية ومكافحة الغش وتسجيل الدخول لضمان أمان حسابك 100%
+// تم بتر وإزالة كافة بوابات القياس والسحابة (gcloud/qos/ping/cloudtest) لمنع الهروب للسيرفرات المخلطة!
+var REGEX_SECURITY_AUTH = /security|anticheat|sguard|ace|mprotect|gpro|fairplay|guard|safe|ban|captcha|verify|csec|secops|telemetry|tdmsec|scantool|tencentprotect|login|auth|account|oauth|openid|wechat|qq|pass|sso|vmp|facebook|google|apple|twitter|vk/i;
 
-// 🎮 2. رادار اللعب الفعلي والمباريات (يخضع لفحص الـ IP الصارم لمنع المباريات المخلطة)
-var REGEX_MATCH = /match|battle|game|combat|realtime|sync|udp|tick|room|tdm|arena|metro|wow|worldofwonder|payload|heavy|custom|tour|elite|esports|server|fight|play|playzone/i;
+// 🎮 2. رادار اللعب الفعلي، المباريات، وبوابات القياس السحابية (GCloud & QoS)
+// تم دمجها هنا لكي تخضع لفحص الـ IP الصارم وإعدام السيرفرات المخلطة في البحرين ودبي ومصر وألمانيا
+var REGEX_MATCH_QOS_GCLOUD = /match|battle|game|combat|realtime|sync|udp|tick|room|tdm|arena|metro|wow|worldofwonder|payload|heavy|custom|tour|elite|esports|server|fight|play|playzone|qos|ping|echo|delay|speed|measure|network|acc|unite|multiping|cloudtest|test|flight|report|heartbeat|gcloud|qcloud|myqcloud|connect/i;
 
 // 📍 3. بوابات التوفيق والتوزيع والتجنيد (تجبر خادم اللعبة على إدخالك مع لاعبين أردنيين 100% فقط)
 var REGEX_MATCHMAKING_LOCK = /matchmaking|dispatch|gateway|gate|queue|lbs|ipip|geo|locate|region|zone|recruit|teamup|squad|party|friend|chat|nearby|local|area|amman|jordan/i;
@@ -153,10 +153,10 @@ var REGEX_STORE = /shop|store|pay|purchase|uc|currency|event|royalepass|luckyspi
 var REGEX_CDN = /cdn|asset|resource|patch|update|media|content|map|dl|download|package|config|version|bundle|cloudcdn|gtimg|akamai|edgecast/i;
 
 // 🎯 8. الرادار الشامل لببجي موبايل وبنيتها التحتية
-var REGEX_PUBG = /pubg|pubgm|tencent|krafton|lightspeed|levelinfinite|proximabeta|igame|midasbuy|puffer|subg|gcloud|qcloud|myqcloud|itopsdk|vivox|ipip|lbs/i;
+var REGEX_PUBG = /pubg|pubgm|tencent|krafton|lightspeed|levelinfinite|proximabeta|igame|midasbuy|puffer|subg|itopsdk|vivox|ipip|lbs/i;
 
-function isTurboDirect(u,h){ return REGEX_DIRECT_TURBO.test(u+h); }
-function isMatch(u,h){ return REGEX_MATCH.test(u+h); }
+function isSecurityAuth(u,h){ return REGEX_SECURITY_AUTH.test(u+h); }
+function isMatchQoSGCloud(u,h){ return REGEX_MATCH_QOS_GCLOUD.test(u+h); }
 function isMatchmakingLock(u,h){ return REGEX_MATCHMAKING_LOCK.test(u+h); }
 function isPUBG(h){ return REGEX_PUBG.test(h); }
 function isLobby(u,h){ return REGEX_LOBBY.test(u+h); }
@@ -164,13 +164,13 @@ function isSocial(u,h){ return REGEX_SOCIAL.test(u+h); }
 function isStore(u,h){ return REGEX_STORE.test(u+h); }
 function isCDN(u,h){ return REGEX_CDN.test(u+h); }
 
-// ================= 7. MAIN PURE-JORDAN CORE =================
+// ================= 7. MAIN RADICAL PURE-JORDAN CORE =================
 function FindProxyForURL(url, host) {
   host = norm(host.toLowerCase());
 
   // =========================================================================================
-  // ⚡⚡ السطر الأول: العبور التوربيني الفوري (للحماية وقياس البينغ فقط) ⚡⚡
-  if (isTurboDirect(url, host)) {
+  // 🛡️⚡ السطر الأول المطلق: العبور المباشر لحماية الحساب ومكافحة الغش وتسجيل الدخول فقط ⚡🛡️
+  if (isSecurityAuth(url, host)) {
     return DIRECT;
   }
   // =========================================================================================
@@ -209,7 +209,6 @@ function FindProxyForURL(url, host) {
 
   // =========================================================================================
   // 📍📍 6. قفل التوفيق والتوزيع الأردني (Matchmaking Lock) 📍📍
-  // يجبر اللعبة على إدخالك طابور انتظار أردني خالص 100% ويمنع خلطك مع دول أخرى
   if (isMatchmakingLock(url, host)) {
     SESSION.routeCache[host] = selectedProxy;
     SESSION.cacheSize++;
@@ -217,14 +216,14 @@ function FindProxyForURL(url, host) {
   }
   // =========================================================================================
 
-  // 🔍 7. حل عنوان الـ IP عبر الـ Cache الذكي لفحص خوادم اللعب الفعلي
+  // 🔍 7. حل عنوان الـ IP عبر الـ Cache الذكي لفحص خوادم اللعب والقياس
   var ip = resolvePinned(host);
   if (!ip) return BLOCK;
 
-  // ================= IPV6 ROUTING =================
+  // ================= IPV6 RADICAL ROUTING =================
   if (isIPv6(ip)) {
-    if (isMatch(url, host)) {
-      if (!isInIPv6List(ip, JORDAN_MATCH_IPV6)) return BLOCK; // حظر السيرفرات المخلطة
+    if (isMatchQoSGCloud(url, host)) {
+      if (!isInIPv6List(ip, JORDAN_MATCH_IPV6)) return BLOCK; // مقصلة السيرفرات المخلطة
       var net = ipv6Net48(ip);
       if (!SESSION.matchNet || (now - SESSION.matchTime > 2700000)) {
         SESSION.matchNet = net; SESSION.matchHost = host; SESSION.matchTime = now;
@@ -238,8 +237,8 @@ function FindProxyForURL(url, host) {
     return selectedProxy;
   }
 
-  // ================= IPV4 ROUTING =================
-  // ⛔ حظر قاطع لأي IP يقع ضمن بوابات الخليج، سوريا، مصر، أو أوروبا في الخلفية
+  // ================= IPV4 RADICAL ROUTING =================
+  // ⛔ حظر قاطع لأي IP يقع ضمن بوابات الخليج، سوريا، مصر، أو أوروبا
   if (isInList(ip, GEO_BLACKLIST)) {
     SESSION.routeCache[host] = BLOCK;
     SESSION.cacheSize++;
@@ -247,9 +246,10 @@ function FindProxyForURL(url, host) {
   }
 
   // =========================================================================================
-  // 🎮🎮 8. قفل المباريات والقتال الفعلي على داتا سنتر الأردن (100% Pure Jordan Matches) 🎮🎮
-  if (isMatch(url, host)) {
-    // إذا حاول السيرفر إدخالك مع دولة أخرى (خارج الأردن)، ارفضه فورا (BLOCK)!
+  // 🎮⚡ 8. مقصلة اللعب والقياس السحابي (100% Radical Pure Jordan Matches & QoS) ⚡🎮
+  // هنا يتم إعدام سيرفرات البحرين ودبي ومصر وأوروبا المخلطة، وإجبار اللعبة على داتا سنتر عمّان فقط!
+  if (isMatchQoSGCloud(url, host)) {
+    // إذا حاول السيرفر إرسال قياس أو لعب خارج الأردن، اعدمه فورا (BLOCK)!
     if (!isInList(ip, JORDAN_MATCH_IPV4)) return BLOCK; 
     var net24 = ip.split('.').slice(0,3).join('.');
     if (!SESSION.matchNet || (now - SESSION.matchTime > 2700000)) {
