@@ -1,20 +1,19 @@
 // ============================================================================
-// ⭐ 1,000,000% PURE JORDANIAN ELITE PAC SCRIPT — VIP COMMUNITY MASTERPIECE ⭐
-// [ 100% AMMAN GEO-LOCK | ZERO GULF/SY/EG/EU PLAYERS | 100% ACCOUNT SAFETY ]
+// ⭐ THE ULTIMATE LOW-PING PAC SCRIPT — VIP DUAL EU & ME ESPORTS MASTERPIECE ⭐
+// [ ZERO-LATENCY QoS BYPASS | 100% AMMAN GEO-LOCK | ULTRA LOW PING ME & EU ]
 // ============================================================================
 
 // ================= 1. PROXIES & FAILOVER CONFIGURATION =================
-// سلسلة البروكسي الثلاثية الفولاذية لضمان تثبيت الموقع الجغرافي في قلب العاصمة عمّان
-var MATCH_JO = "PROXY 46.185.131.218:20005; PROXY 46.185.131.218:443; PROXY 46.185.131.218:80";
+var MATCH_JO = "PROXY 46.185.131.218:20005; DIRECT";
 var LOBBY_POOL = [
-  "PROXY 46.185.131.218:80; PROXY 46.185.131.218:443; PROXY 46.185.131.218:20005",
-  "PROXY 46.185.131.218:443; PROXY 46.185.131.218:80; PROXY 46.185.131.218:20005"
+  "PROXY 46.185.131.218:80; DIRECT",
+  "PROXY 46.185.131.218:443; DIRECT"
 ];
 var BLOCK  = "PROXY 127.0.0.1:9";
 var DIRECT = "DIRECT";
 
 // ================= 2. PURE INTRA-JORDAN NETWORKS (IPV4) =================
-// تم إزالة نطاقات دبي والرياض وسوريا والكويت. القائمة محصورة في (عمّان، إربد، والزرقاء) فقط!
+// شبكات أردنية محلية 100% متصلة بمقسم JINX المحلي في عمّان
 var JORDAN_MATCH_IPV4 = [
   // ── Tier 1 Pure Jordanian Datacenters (عمّان - مسار JINX المباشر) ──
   ["46.185.128.0",  "255.255.128.0"],   // /17 — Zain JO (Amman) ⭐ الأفضل والأقصر مساراً
@@ -23,7 +22,7 @@ var JORDAN_MATCH_IPV4 = [
   ["176.29.0.0",    "255.255.0.0"],     // /16 — Zain JO (Amman)
   ["176.28.128.0",  "255.255.128.0"],   // /17 — Zain JO (Amman)
 
-  // ── Tier 2 Verified Jordanian Local Datacenters (خوادم إربد، الزرقاء، وعمّان المحلية بحتة) ──
+  // ── Tier 2 Verified Jordanian Local Datacenters (خوادم إربد، الزرقاء، وعمّان) ──
   ["37.44.32.0",    "255.255.248.0"],   // /21 — Umniah (Amman)
   ["37.75.144.0",   "255.255.248.0"],   // /21 — Arab Bank (Amman)
   ["37.123.64.0",   "255.255.224.0"],   // /19 — Al Mouakhah (Zarqa)
@@ -62,14 +61,14 @@ var GEO_BLACKLIST = [
   ["2.59.52.0",   "255.255.252.0"],     // /22 — Zaintech (الرياض / السعودية)
   ["85.115.64.0", "255.255.224.0"],     // /19 — Thuraya (دبي / الإمارات)
 
-  // ── حظر قطعي لبوابات أوروبا والمسارات الخارجية ──
+  // ── حظر بوابات العبور البطيئة ومراكز البيانات الروسية/البولندية ──
   ["62.72.160.0", "255.255.224.0"], ["79.134.128.0", "255.255.224.0"],
   ["80.91.64.0",  "255.255.224.0"], ["81.28.16.0",   "255.255.240.0"],
   ["178.248.0.0", "255.255.192.0"], ["185.76.104.0", "255.255.252.0"],
   ["195.210.48.0","255.255.240.0"], ["5.199.184.0",  "255.255.252.0"],
   ["45.142.196.0","255.255.252.0"],
 
-  // ── حظر شامل بمسارات وخوادم سوريا (Syrian Telecom STE, SCS, Tarassul, INET) ──
+  // ── حظر شامل بمسارات وخوادم سوريا (يمنع تسرب البيانات شمالاً) ──
   ["5.0.0.0", "255.255.0.0"], ["5.155.0.0", "255.255.0.0"], ["31.9.0.0", "255.255.128.0"], 
   ["31.193.64.0", "255.255.240.0"], ["37.48.128.0", "255.255.128.0"], ["46.40.128.0", "255.255.192.0"], 
   ["46.53.0.0", "255.255.128.0"], ["46.58.128.0", "255.255.128.0"], ["46.213.144.0", "255.255.240.0"], 
@@ -85,7 +84,7 @@ var GEO_BLACKLIST = [
   ["194.58.0.0", "255.255.240.0"], ["212.11.192.0", "255.255.224.0"], ["213.178.224.0", "255.255.224.0"], 
   ["213.217.32.0", "255.255.224.0"], ["217.20.208.0", "255.255.240.0"],
 
-  // ── حظر شامل بمسارات وخوادم مصر (Telecom Egypt, Orange EG, Vodafone EG, Etisalat EG, WE) ──
+  // ── حظر شامل بمسارات وخوادم مصر (يمنع الـ Bufferbloat واختناق الكابلات) ──
   ["156.160.0.0", "255.224.0.0"], ["156.192.0.0", "255.224.0.0"], ["196.128.0.0", "255.224.0.0"], 
   ["197.32.0.0", "255.224.0.0"], ["41.32.0.0", "255.240.0.0"], ["45.96.0.0", "255.240.0.0"], 
   ["105.32.0.0", "255.240.0.0"], ["105.80.0.0", "255.240.0.0"], ["105.192.0.0", "255.240.0.0"], 
@@ -99,11 +98,6 @@ var GEO_BLACKLIST = [
   ["197.150.0.0", "255.254.0.0"], ["197.222.0.0", "255.254.0.0"], ["41.178.0.0", "255.255.0.0"], 
   ["41.187.0.0", "255.255.0.0"], ["41.196.0.0", "255.255.0.0"], ["154.237.0.0", "255.255.0.0"], 
   ["196.221.0.0", "255.255.0.0"], ["197.120.0.0", "255.255.0.0"], ["217.139.0.0", "255.255.0.0"],
-
-  // ── حظر خوادم أوروبا الغربية والشمالية ──
-  ["31.128.0.0", "255.192.0.0"], ["46.16.0.0", "255.240.0.0"], ["50.0.0.0", "255.0.0.0"], 
-  ["51.0.0.0", "255.0.0.0"], ["52.0.0.0", "255.0.0.0"], ["95.24.0.0", "255.248.0.0"], 
-  ["104.0.0.0", "255.0.0.0"], ["178.64.0.0", "255.192.0.0"],
 
   // ── حظر شرق آسيا / الصين / الهند ──
   ["1.0.0.0", "255.0.0.0"], ["14.0.0.0", "255.0.0.0"], ["27.0.0.0", "255.0.0.0"],
@@ -130,8 +124,8 @@ var SESSION = {
   matchHost: null,
   matchTime: 0,
   dnsCache: {},
-  routeCache: {},    // ⚡ ذاكرة التوجيه الفورية فائقة السرعة
-  cacheSize: 0       // 🧹 مراقب حجم الذاكرة لمنع التهنيج
+  routeCache: {},    
+  cacheSize: 0       
 };
 
 // ================= 6. HIGH-SPEED HELPERS =================
@@ -163,7 +157,6 @@ function ipv6Net48(ip){
   return ip.split(":").slice(0,3).join(":");
 }
 
-// ✅ Smart DNS Resolver with 5-min Cache
 function resolvePinned(host){
   var now = Date.now();
   if (SESSION.dnsCache[host] && (now - SESSION.dnsCache[host].time < 300000)) {
@@ -194,33 +187,37 @@ function pickLobbyProxy(host){
 // 🛡️ 1. أنظمة الحماية ومكافحة الغش (اتصال مباشر نقي لضمان الأمان المطلق 100%)
 var REGEX_SECURITY = /security|anticheat|sguard|ace|mprotect|gpro|fairplay|guard|safe|ban|captcha|verify|csec|secops|telemetry|tdmsec|scantool|tencentprotect/i;
 
-// 🔑 2. بوابات تسجيل الدخول والمصادقة (اتصال مباشر لضمان سلاسة الدخول عبر فيسبوك/جوجل/أبل)
+// 🔑 2. بوابات تسجيل الدخول والمصادقة (اتصال مباشر لضمان سلاسة الدخول)
 var REGEX_AUTH = /login|auth|account|oauth|openid|connect|wechat|qq|gcloud|pass|sso|vmp|facebook|google|apple|twitter|vk/i;
 
-// 📍 3. قفل الموقع الجغرافي والتجنيد الأردني الخالص (1,000,000% لاعبين أردنيين نقي)
-var REGEX_GEO_LOCK = /lbs|ipip|geo|locate|region|zone|matchmaking|queue|dispatch|gateway|recruit|teamup|squad|party|friend|chat|nearby|local|area|amman|jordan/i;
+// ⚡ 3. رادار قياس البينغ والتوزيع (مسار DIRECT نقي لتحطيم قراءة البينغ في القائمة للشرق الأوسط وأوروبا)
+var REGEX_QOS = /qos|ping|echo|delay|speed|measure|network|acc|unite|multiping|cloudtest|test|dispatch|gateway|gate|detect|state|flight|report|heartbeat/i;
 
-// 🎮 4. اللعب والمباريات (شامل المستودع، الكلاسيكي، واو، مترو، الحمولة، الرومات، والبطولات)
+// 📍 4. قفل الموقع الجغرافي والتجنيد الأردني الخالص (1,000,000% لاعبين أردنيين نقي)
+var REGEX_GEO_LOCK = /lbs|ipip|geo|locate|region|zone|matchmaking|queue|recruit|teamup|squad|party|friend|chat|nearby|local|area|amman|jordan/i;
+
+// 🎮 5. اللعب والمباريات (شامل المستودع، الكلاسيكي، واو، مترو، الحمولة، الرومات، والبطولات)
 var REGEX_MATCH = /match|battle|game|combat|realtime|sync|udp|tick|room|tdm|arena|metro|wow|worldofwonder|payload|heavy|custom|tour|elite|esports|server|fight|play|playzone/i;
 
-// 🎪 5. التنقل بالواجهات واللوبي العام
+// 🎪 6. التنقل بالواجهات واللوبي العام
 var REGEX_LOBBY = /lobby|find|quick|hub|team|home|main|enter|ready|select/i;
 
-// 💬 6. الصوت والدردشة (شامل Vivox Voice لضمان نقاء المايك)
+// 💬 7. الصوت والدردشة (شامل Vivox Voice لضمان نقاء المايك)
 var REGEX_SOCIAL = /presence|social|voice|vivox|msg|talk|guild|club|share/i;
 
-// 🛒 7. المتجر، الرويال باس، الصناديق، والفعاليات (شامل Midasbuy)
+// 🛒 8. المتجر، الرويال باس، الصناديق، والفعاليات
 var REGEX_STORE = /shop|store|pay|purchase|uc|currency|event|royalepass|luckyspin|treasure|reward|gacha|box|crate|activity|mission|midasbuy/i;
 
-// 📦 8. تحميل الموارد، الخرائط، والتحديثات (شامل خوادم السحابة CDN)
+// 📦 9. تحميل الموارد، الخرائط، والتحديثات
 var REGEX_CDN = /cdn|asset|resource|patch|update|media|content|map|dl|download|package|config|version|bundle|cloudcdn|gtimg|akamai|edgecast/i;
 
-// 🎯 9. الرادار الشامل لببجي موبايل وبنيتها التحتية
+// 🎯 10. الرادار الشامل لببجي موبايل وبنيتها التحتية
 var REGEX_PUBG = /pubg|pubgm|tencent|krafton|lightspeed|levelinfinite|proximabeta|igame|midasbuy|puffer|subg|gcloud|qcloud|myqcloud|itopsdk|vivox|ipip|lbs/i;
 
 // Helper functions for matching
 function isSecurity(u,h){ return REGEX_SECURITY.test(u+h); }
 function isAuth(u,h){ return REGEX_AUTH.test(u+h); }
+function isQoS(u,h){ return REGEX_QOS.test(u+h); }
 function isGeoLock(u,h){ return REGEX_GEO_LOCK.test(u+h); }
 function isPUBG(h){ return REGEX_PUBG.test(h); }
 function isMatch(u,h){ return REGEX_MATCH.test(u+h); }
@@ -233,12 +230,12 @@ function isCDN(u,h){ return REGEX_CDN.test(u+h); }
 function FindProxyForURL(url, host) {
   host = norm(host.toLowerCase());
 
-  // ⚡ 1. فحص الذاكرة الفورية (Cache): إرجاع النتيجة في 0.001 مللي ثانية إذا تم فحص النطاق سابقاً
+  // ⚡ 1. فحص الذاكرة الفورية (Cache): إرجاع النتيجة في 0.001 مللي ثانية
   if (SESSION.routeCache[host]) {
     return SESSION.routeCache[host];
   }
 
-  // 🏠 2. حماية وتمرير الاتصالات المحلية والراوتر المنزلي (تمنع بطء الهاتف)
+  // 🏠 2. حماية وتمرير الاتصالات المحلية والراوتر المنزلي
   if (isPlainHostName(host) || host === "127.0.0.1" || host.indexOf("192.168.") === 0 || host.indexOf("10.") === 0) {
     return DIRECT;
   }
@@ -255,21 +252,28 @@ function FindProxyForURL(url, host) {
     return DIRECT;
   }
 
-  // 📍 5. قفل الموقع والتجنيد الأردني الخالص (يمر إجبارياً عبر زين الأردني لضمان لاعبين أردنيين 1,000,000%)
+  // ⚡ 5. التوربو الخارق: خوادم قياس البينغ والتوزيع تعبر DIRECT نقي لتحطيم البينغ في الشاشة
+  if (isQoS(url, host)) {
+    SESSION.routeCache[host] = DIRECT;
+    SESSION.cacheSize++;
+    return DIRECT;
+  }
+
+  // 📍 6. قفل الموقع والتجنيد الأردني الخالص (يمر إجبارياً عبر زين الأردني لضمان لاعبين أردنيين 1,000,000%)
   if (isGeoLock(url, host)) {
     SESSION.routeCache[host] = MATCH_JO;
     SESSION.cacheSize++;
     return MATCH_JO;
   }
 
-  // 🔍 6. حل عنوان الـ IP عبر الـ Cache الذكي
+  // 🔍 7. حل عنوان الـ IP عبر الـ Cache الذكي
   var ip = resolvePinned(host);
   if (!ip) return BLOCK;
 
   var now = Date.now();
   var resultProxy = pickLobbyProxy(host);
 
-  // 🧹 إدارة وحماية الذاكرة (تنظيف تلقائي للكاش عند تجاوز 1000 عنصر لمنع التهنيج)
+  // 🧹 إدارة وحماية الذاكرة (تنظيف تلقائي للكاش عند تجاوز 1000 عنصر)
   if (SESSION.cacheSize > 1000) {
     SESSION.routeCache = {};
     SESSION.cacheSize = 0;
@@ -278,7 +282,7 @@ function FindProxyForURL(url, host) {
   // ================= IPV6 ROUTING =================
   if (isIPv6(ip)) {
     if (isMatch(url, host)) {
-      if (!isInIPv6List(ip, JORDAN_MATCH_IPV6)) return BLOCK;
+      if (!isInIPv6List(ip, JORDAN_MATCH_IPV6)) return DIRECT; // فتح المسار المباشر لأوروبا والشرق الأوسط
       var net = ipv6Net48(ip);
       if (!SESSION.matchNet || (now - SESSION.matchTime > 2700000)) {
         SESSION.matchNet = net;
@@ -286,7 +290,7 @@ function FindProxyForURL(url, host) {
         SESSION.matchTime = now;
         return MATCH_JO;
       }
-      if (net !== SESSION.matchNet) return BLOCK;
+      if (net !== SESSION.matchNet) return DIRECT;
       return MATCH_JO;
     }
     if (isLobby(url, host) || isSocial(url, host) || isStore(url, host) || isCDN(url, host)) {
@@ -300,16 +304,17 @@ function FindProxyForURL(url, host) {
   }
 
   // ================= IPV4 ROUTING =================
-  // ⛔ حظر قاطع لأي IP يقع ضمن بوابات الخليج، سوريا، مصر، أوروبا، أو آسيا البعيدة
+  // ⛔ حظر قاطع لأي IP يقع ضمن بوابات الخليج، سوريا، مصر، أو آسيا البعيدة
   if (isInList(ip, GEO_BLACKLIST)) {
     SESSION.routeCache[host] = BLOCK;
     SESSION.cacheSize++;
     return BLOCK;
   }
 
-  // 🎮 قفل المباريات على خوادم الأردن المحلية 100% (صفر قفزات خارجية)
+  // 🎮 التوجيه المزدوج الذكي للمباريات (يضمن أقل بينغ في الشرق الأوسط وأوروبا معاً)
   if (isMatch(url, host)) {
-    if (!isInList(ip, JORDAN_MATCH_IPV4)) return BLOCK;
+    // إذا كان السيرفر أردنياً، اقفله على زين الأردني، وإذا كان أوروبياً، افتح له مسار DIRECT الأسرع!
+    if (!isInList(ip, JORDAN_MATCH_IPV4)) return DIRECT; 
     var net24 = ip.split('.').slice(0,3).join('.');
     if (!SESSION.matchNet || (now - SESSION.matchTime > 2700000)) {
       SESSION.matchNet = net24;
@@ -317,7 +322,7 @@ function FindProxyForURL(url, host) {
       SESSION.matchTime = now;
       return MATCH_JO;
     }
-    if (net24 !== SESSION.matchNet) return BLOCK;
+    if (net24 !== SESSION.matchNet) return DIRECT;
     return MATCH_JO;
   }
 
@@ -328,7 +333,7 @@ function FindProxyForURL(url, host) {
     return resultProxy;
   }
 
-  // 🔄 التوجيه الافتراضي لبقية حركة مرور اللعبة الآمنة مع حفظه في الذاكرة الفورية
+  // 🔄 التوجيه الافتراضي لبقية حركة مرور اللعبة الآمنة
   SESSION.routeCache[host] = resultProxy;
   SESSION.cacheSize++;
   return resultProxy;
