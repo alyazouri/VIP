@@ -1,434 +1,481 @@
-// =====================================================
-// PUBG ALL-IN JORDAN ULTRA — FINAL COMPLETE (LONG-TERM)
-// Priority: Jordan FIRST -> Gulf ONLY (NO EUROPE/ASIA/AMERICAS)
-// WOW/UGC/Rooms forced to Lobby Proxy 9030 (JO→Gulf)
-// Stable low ping: fixed proxies, no rotation
-// =====================================================
+// ══════════════════════════════════════════════════════════════
+//  PUBG ALL-IN JORDAN ULTRA v3.0 — "QUANTUM FORGE"
+//  📅 Updated: 2026-08  |  Season 28+
+//  🎯 Priority: Jordan FIRST → Gulf ONLY (Block All Others)
+//  🔧 Fixed: getRealIPv4 | BLOCKED prefix | Date.now safety
+//  🆕 Expanded: Jordan/Gulf ranges | PUBG S28+ modes | IPv6
+// ══════════════════════════════════════════════════════════════
 
-// =======================
-// PROXIES (STABLE)
-// =======================
+// ─────────────────────────────────────────────
+//  §1  PROXIES (STABLE)
+//  LOBBY  → 9030 : Matchmaking + WOW + Arena
+//  MATCH  → 20001: In-Game (Classic / Ranked)
+//  VOICE  → 20001: Voice Chat (RTC/WebRTC)
+// ─────────────────────────────────────────────
 var LOBBY_PROXY =
   "PROXY 176.29.153.95:9030; " +
   "PROXY 212.35.66.45:9030";
 
-var MATCH_PROXY = "PROXY 176.29.153.95:20001";
+var MATCH_PROXY =
+  "PROXY 176.29.153.95:20001; " +
+  "PROXY 212.35.66.45:20001";
 
 var VOICE_PROXY =
   "PROXY 82.212.84.33:20001; " +
   "PROXY 82.212.84.33:10012";
 
-var BLOCK = "PROXY 127.0.0.1:9";
+var BLOCK  = "PROXY 127.0.0.1:9";
+var DIRECT = "DIRECT";
 
-// =======================
-// SAFE DIRECT (SYSTEM)
-// =======================
+// ─────────────────────────────────────────────
+//  §2  ALWAYS DIRECT — System + CDN + Social
+// ─────────────────────────────────────────────
 var SAFE_DIRECT = [
-  "captive.apple.com",
-  "time.apple.com",
-  "ocsp.apple.com",
-  "clients3.google.com",
-  "gstatic.com",
-  "googleapis.com"
-];
-
-// =======================
-// CDN / MEDIA DIRECT (keeps browsing stable)
-// =======================
-var CDN_DIRECT = [
+  // Apple System
+  "captive.apple.com","time.apple.com","ocsp.apple.com",
+  "albert.apple.com","mesu.apple.com","gs.apple.com",
+  // Google System
+  "clients3.google.com","gstatic.com","googleapis.com",
+  "safebrowsing.googleapis.com",
+  // Microsoft
+  "windowsupdate.com","update.microsoft.com",
+  // CDN
+  "akamaied.net","akamaihd.net","cloudfront.net",
+  "fastly.net","edgesuite.net",
+  // Video
   "youtube.com","googlevideo.com","ytimg.com",
-  "fbcdn.net","facebook.com",
-  "instagram.com","cdninstagram.com",
+  "fbcdn.net","cdninstagram.com",
   "tiktokcdn.com","tiktokv.com",
-  "akamaihd.net"
+  // Dev
+  "github.com","github.io","githubusercontent.com"
 ];
 
-// =======================
-// GEO CONFIG
-// =======================
-var CFG = {
-  GEO_MODE: "JO_GULF_ONLY" // allow: Jordan or Gulf only, block everything else
-};
+// ─────────────────────────────────────────────
+//  §3  BITMASK TABLES — Jordan IPv4
+//  مرتّبة: Zain → Orange → Umniah → Linkdotnet → Others
+//  [network >>> 0, mask >>> 0]
+// ─────────────────────────────────────────────
 
-// =======================
-// JORDAN — PREFIX TABLES (expanded, same style)
-// "82.212.64.0/18","188.123.160.0/19", "37.202.64.0/19",
-// =======================
-var JO_TIGHT = {
-  // Core JO (very common)
-"82.212.":1,
-"188.123.":1,
-"37.202.":1,
-"212.35.":1,
-"176.29.":1,
-"91.106.":1,
-"46.32.":1,
-"46.185.":1,
-"86.108.":1,
-"92.253.":1,
-"94.249.":1,
-"188.247.":1,
-"149.200.":1
-};
+// ══════ ZAIN JO (AS48832) ══════
+var JO_ZAIN = [
+  [0x52D44000, 0xFFFFC000],  // 82.212.64.0/18   Core Block
+  [0xB01D0000, 0xFFFF0000],  // 176.29.0.0/16    Fixed Broad
+  [0xB01D9800, 0xFFFFFF00],  // 176.29.152.0/24  Game Servers
+  [0xB01C8000, 0xFFFF8000],  // 176.28.128.0/17  Wholesale
+  [0xBC7BA000, 0xFFFFE000],  // 188.123.160.0/19 LTE Pool
+  [0x25DC7000, 0xFFFFF000],  // 37.220.112.0/20  2023 Block
+  [0x5EF90000, 0xFFFF8000],  // 94.249.0.0/17    DC
+  [0x511C7000, 0xFFFFF000],  // 81.28.112.0/20   Mobile Data
+  [0x52D45000, 0xFFFFF000],  // 82.212.80.0/20   2024 Sub-A
+  [0x52D46000, 0xFFFFE000]   // 82.212.96.0/19   2024 Sub-B
+];
 
-var JO_FULL = {
-  // Extra JO common ranges
-  "78.135.":1, "78.138.":1,
-  "37.48.":1, "37.49.":1, "37.50.":1, "37.51.":1,
-  "37.75.":1, "37.202.":1,
-  "79.134.":1, "79.173.":1,
-  "81.21.":1, "81.28.":1, "80.90.":1,
-  "62.72.":1, "62.150.":1, "62.251.":1,
-  "85.159.":1,"31.214.":1,"77.245.":1,
-  "109.107.":1, "109.237.":1,
-  "188.161.":1,
-  "193.188.":1, "193.227.":1,
-  "195.135.":1, "195.170.":1, "195.228.":1, "195.229.":1,
-  "213.6.":1, "213.42.":1, "213.139.":1, "213.186.":1,
-  "217.23.":1, "217.29.":1, "217.144.":1, "217.171.":1,
-  "5.45.":1, "5.198.":1, "5.199.":1
-};
+// ══════ ORANGE JO / JDC (AS8697/AS9038) ══════
+var JO_ORANGE = [
+  [0x2EB98000, 0xFFFF8000],  // 46.185.128.0/17  Broadband Core
+  [0x566C0000, 0xFFFF8000],  // 86.108.0.0/17    DSL Pool
+  [0x4FADC000, 0xFFFFC000],  // 79.173.192.0/18  Mobile
+  [0x5CFD0000, 0xFFFF8000],  // 92.253.0.0/17    Business
+  [0x25CA4000, 0xFFFFC000],  // 37.202.64.0/18   JDC
+  [0xC1BC4000, 0xFFFFE000],  // 193.188.64.0/19  Legacy
+  [0xC2A58000, 0xFFFFE000],  // 194.165.128.0/19 PA Block
+  [0xD5BAA000, 0xFFFFE000],  // 213.186.160.0/19 Backbone
+  [0x5BBAE000, 0xFFFFE000],  // 91.186.224.0/19  Enterprise
+  [0xD9170000, 0xFFFFF000]   // 217.23.0.0/20    Peering
+];
 
-// =======================
-// GULF — EXPANDED BIG (same style, anti-east drift)
-// =======================
-var GULF_NETS = {
-  // Bahrain (closest, best fallback)
-  "185.125.":1, "46.183.":1, "37.131.":1, "80.241.":1, "84.235.":1,
+// ══════ UMNIAH (AS50670) ══════
+var JO_UMNIAH = [
+  [0x2EF8C000, 0xFFFFE000],  // 46.248.192.0/19  Mobile Core
+  [0x5CF12000, 0xFFFFE000],  // 92.241.32.0/19   LTE Data
+  [0x6D6BE000, 0xFFFFE000],  // 109.107.224.0/19 4G Pool
+  [0x052D8000, 0xFFFFF000],  // 5.45.128.0/20    Legacy DSL
+  [0x2E177000, 0xFFFFF000],  // 46.23.112.0/20   Fixed
+  [0x95C88000, 0xFFFF8000],  // 149.200.128.0/17 Shared Block
+  [0xB2EEB000, 0xFFFFF000],  // 178.238.176.0/20 Extended
+  [0x2EB78000, 0xFFFF8000]   // 46.183.0.0/17    2024 New
+];
 
-  // Saudi Arabia (big coverage)
-  "212.71.":1, "185.193.":1, "185.194.":1, "185.195.":1, "185.196.":1,
-  "94.26.":1, "95.177.":1, "46.152.":1, "37.224.":1,
+// ══════ LINKDOTNET JO ══════
+var JO_LINK = [
+  [0x2E206000, 0xFFFFE000],  // 46.32.96.0/19
+  [0x505AA000, 0xFFFFF000],  // 80.90.160.0/20
+  [0x5E8E2000, 0xFFFFE000],  // 94.142.32.0/19
+  [0x4DF50000, 0xFFFFF000],  // 77.245.0.0/20
+  [0x505A8000, 0xFFFF8000]   // 80.90.128.0/17
+];
 
-  // UAE (big)
-  "5.62.":1, "31.192.":1, "31.193.":1,
-  "86.96.":1, "94.200.":1, "94.201.":1, "94.202.":1,
-  "217.164.":1,
+// ══════ BATELCO JO ══════
+var JO_BATELCO = [
+  [0x5B6A6000, 0xFFFFF000],  // 91.106.96.0/20
+  [0xD4760000, 0xFFFFE000],  // 212.118.0.0/19
+  [0x25DC7000, 0xFFFFF000]   // 37.220.112.0/20
+];
+
+// ══════ VTEL JO ══════
+var JO_VTEL = [
+  [0x3E48A000, 0xFFFFE000],  // 62.72.160.0/19
+  [0x51150000, 0xFFFFF000],  // 81.21.0.0/20
+  [0x6DEDC000, 0xFFFFC000],  // 109.237.192.0/18
+  [0xB0390000, 0xFFFFE000],  // 176.57.0.0/19
+  [0xB24D8000, 0xFFFFC000]   // 178.77.128.0/18
+];
+
+// ══════ JORDAN TELECOM PSC (AS8697) ══════
+var JO_JT = [
+  [0xD4220000, 0xFFFFE000],  // 212.34.0.0/19
+  [0xD4234000, 0xFFFFC000],  // 212.35.64.0/18  ← Game Servers
+  [0xD58B2000, 0xFFFFE000],  // 213.139.32.0/19
+  [0xD9900000, 0xFFFFF000],  // 217.144.0.0/20
+  [0xD91B2000, 0xFFFFE000]   // 217.27.32.0/19
+];
+
+// ══════ AL MOUAKHAH / OTHERS ══════
+var JO_OTHER = [
+  [0x2511C000, 0xFFFFF000],  // 37.17.192.0/20
+  [0x257B4000, 0xFFFFE000],  // 37.123.64.0/19
+  [0x5F8DD000, 0xFFFFF000],  // 95.141.208.0/20
+  [0x54122000, 0xFFFFE000],  // 84.18.32.0/19
+  [0x25988000, 0xFFFFF000],  // 37.152.128.0/20
+  [0x05160000, 0xFFFF0000],  // 5.22.0.0/16 — NITC
+  [0xB9188000, 0xFFFFE000],  // 185.24.128.0/19
+  [0xB93E8000, 0xFFFFE000],  // 185.62.128.0/19
+  [0xBC7B4000, 0xFFFFE000],  // 188.123.64.0/19
+  [0xBCF74000, 0xFFFFE000]   // 188.247.64.0/19
+];
+
+// ─────────────────────────────────────────────
+//  §4  BITMASK TABLES — Gulf IPv4
+//  مرتّبة: BH (أقرب) → SA → UAE → KW → QA → OM
+// ─────────────────────────────────────────────
+var GULF_MASKS = [
+  // Bahrain — أقرب وأفضل fallback
+  [0xB97DBB00, 0xFFFFFC00],  // 185.125.188.0/22
+  [0x2EB7D800, 0xFFFFFC00],  // 46.183.216.0/22
+  [0x4E1A0000, 0xFFFE0000],  // 78.26.0.0/15
+  [0x5B4A0000, 0xFFFF0000],  // 91.74.0.0/16
+  [0x50F10000, 0xFFFF0000],  // 80.241.0.0/16
+
+  // Saudi Arabia
+  [0xD4470000, 0xFFFF0000],  // 212.71.0.0/16
+  [0xB9C14000, 0xFFFFC000],  // 185.193.64.0/18
+  [0xB9C20000, 0xFFFE0000],  // 185.194.0.0/15
+  [0x5E1A0000, 0xFFFF0000],  // 94.26.0.0/16
+  [0x5FB10000, 0xFFFF0000],  // 95.177.0.0/16
+  [0x25B80000, 0xFFFF8000],  // 37.184.0.0/17
+  [0x2E980000, 0xFFFF8000],  // 46.152.0.0/17
+  [0x25E00000, 0xFFFF0000],  // 37.224.0.0/16
+  [0xBC870000, 0xFFFF8000],  // 188.135.0.0/17
+  [0x6DE00000, 0xFFFF8000],  // 109.224.0.0/17
+  [0x5F450000, 0xFFFF0000],  // 95.69.0.0/16
+
+  // UAE
+  [0x053E3C00, 0xFFFFFC00],  // 5.62.60.0/22
+  [0x1FC00000, 0xFFFF0000],  // 31.192.0.0/16
+  [0x1FC10000, 0xFFFF0000],  // 31.193.0.0/16
+  [0x56600000, 0xFFFF0000],  // 86.96.0.0/16
+  [0x5EC80000, 0xFFFF8000],  // 94.200.0.0/17
+  [0xD52A0000, 0xFFFF8000],  // 213.42.0.0/17
 
   // Kuwait
-  "62.84.":1, "82.178.":1, "91.140.":1, "94.128.":1,
+  [0x3E540000, 0xFFFF0000],  // 62.84.0.0/16
+  [0x52B20000, 0xFFFF0000],  // 82.178.0.0/16
+  [0x5B8C0000, 0xFFFF0000],  // 91.140.0.0/16
+  [0x5E800000, 0xFFFF0000],  // 94.128.0.0/16
 
   // Qatar
-  "37.210.":1, "89.211.":1,
+  [0x25D20000, 0xFFFF0000],  // 37.210.0.0/16
+  [0x59D30000, 0xFFFF0000],  // 89.211.0.0/16
 
   // Oman
-  "185.64.":1, "5.36.":1
-};
-
-// =======================
-// AFGHANISTAN — HARD BLOCK (prefix + CIDR confirm)
-// (Stops AF endpoints even if they look "Asia-ish")
-// =======================
-var AF_HINT = {
-  "58.147.":1, "59.153.":1, "61.5.":1, "91.109.":1,
-  "103.":1, "45.":1
-};
-
-// =======================
-// FAR-REGION QUICK BLOCKS (extra safety)
-// =======================
-var BLOCKED = [
-  // Asia Pacific (common cloud edges)
-  "8.222.","47.245.","43.132.","18.163.","13.228.","13.229.",
-  "13.250.","52.220.","54.169.","54.251.","175.41.","119.81.",
-  "103.28.","103.29.","203.104.","210.16.","52.74.","52.77.",
-  "8.210.","47.74.","47.88.","120.76.","121.40.","139.224.",
-  // Europe
-  "18.185.","3.120.","52.58.","35.156.","52.28.","52.29.",
-  "18.194.","3.64.","3.65.","3.66.","52.30.","18.196.",
-  "52.59.","18.157.","3.121.","3.122.","3.123.",
-  // Americas
-  "54.218.","52.88.","34.208.","18.237.","52.36.","54.244.",
-  "35.162.","44.228.","34.220.","54.200.","52.24.","18.232.",
-  "54.85.","34.192.","52.90.","34.224."
+  [0xB9400000, 0xFFFF0000],  // 185.64.0.0/16
+  [0x05240000, 0xFFFF0000],  // 5.36.0.0/16
+  [0x25B80000, 0xFFFF0000]   // 37.184.0.0/16
 ];
 
-// =====================================================
-// HELPERS — COMPLETE
-// =====================================================
+// ─────────────────────────────────────────────
+//  §5  AFGHANISTAN BLOCK — Tight CIDR confirm
+// ─────────────────────────────────────────────
+var AF_MASKS = [
+  [0x3A938000, 0xFFFFE000],  // 58.147.128.0/19
+  [0x3B997C00, 0xFFFFFC00],  // 59.153.124.0/22
+  [0x3D05C000, 0xFFFFF000],  // 61.5.192.0/20
+  [0x5B6DD800, 0xFFFFF800],  // 91.109.216.0/21
+  [0x67053C00, 0xFFFFFC00],  // 103.5.172.0/22
+  [0x670D4000, 0xFFFFFC00],  // 103.13.64.0/22
+  [0x67113C00, 0xFFFFFC00],  // 103.17.60.0/22
+  [0x6712A000, 0xFFFFFC00],  // 103.18.160.0/22
+  [0x67172400, 0xFFFFFC00],  // 103.23.36.0/22
+  [0x671C8400, 0xFFFFFC00],  // 103.28.132.0/22
+  [0x2D413800, 0xFFFFFC00],  // 45.65.56.0/22
+  [0x2D748000, 0xFFFFFE00]   // 45.116.128.0/23
+];
 
-// ✅ PUBG DETECTION — EXPANDED (LONG-TERM)
-function isPUBG(host){
-  host = host.toLowerCase();
-  return /(pubg|pubgm|pubgmobile|intlgame|igamecj|proximabeta|tencent|qq|qcloud|gcloudsdk|krafton|lightspeed|amsoveasea|lightspeed|vmpone|vmp|gme|gamecenter|wow|worldofwonder|ugc|creative|creation|creations)/.test(host);
+// ─────────────────────────────────────────────
+//  §6  FAR-REGION BLOCK — Asia/EU/Americas
+//  (حجب سريع قبل isInNet — بـ prefix بدلاً من string match)
+// ─────────────────────────────────────────────
+var FAR_MASKS = [
+  // Asia Pacific — AWS/Alibaba/Tencent edges
+  [0x082BD000, 0xFFFFF000],  // 8.43.208.0/20   — SGP
+  [0x2FF50000, 0xFFFF0000],  // 47.245.0.0/16   — ALI SGP
+  [0x2B840000, 0xFFFF0000],  // 43.132.0.0/16   — TC HK
+  [0x129F0000, 0xFFFF0000],  // 18.163.0.0/16   — AWS HK
+  [0x0DE40000, 0xFFFF0000],  // 13.228.0.0/16   — AWS SGP
+  [0xAF290000, 0xFFFF0000],  // 175.41.0.0/16   — AWS SGP2
+  [0x77510000, 0xFFFF0000],  // 119.81.0.0/16   — IBM SGP
+  [0x34FA0000, 0xFFFF0000],  // 52.250.0.0/16   — AWS AP
+  [0x3444C000, 0xFFFF0000],  // 52.68.0.0/16    — AWS JP
+  [0x36AC0000, 0xFFFF0000],  // 54.172.0.0/16   — AWS JP2
+  [0x78640000, 0xFFFF0000],  // 120.76.0.0/16   — ALI SH
+  [0x7928C000, 0xFFFF0000],  // 121.40.192.0/18 — ALI HZ
+
+  // Europe — AWS EU
+  [0x1299B000, 0xFFFF0000],  // 18.185.0.0/16   — AWS EU-W
+  [0x03780000, 0xFFFF0000],  // 3.120.0.0/16    — AWS EU-C
+  [0x3472E000, 0xFFFF0000],  // 52.114.0.0/16   — MSFT EU
+  [0x231C0000, 0xFFFF0000],  // 35.28.0.0/16    — GCP EU
+  [0x12C20000, 0xFFFF0000],  // 18.194.0.0/16   — AWS EU-F
+  [0x03400000, 0xFFFF0000],  // 3.64.0.0/16     — AWS EU-C2
+
+  // Americas — AWS US
+  [0x36DA0000, 0xFFFF0000],  // 54.218.0.0/16   — AWS US-W
+  [0x3658C000, 0xFFFF0000],  // 54.88.192.0/18  — AWS US-E
+  [0x22D00000, 0xFFFF0000],  // 34.208.0.0/16   — AWS US-W2
+  [0x12ED0000, 0xFFFF0000],  // 18.237.0.0/16   — AWS US-W3
+  [0x2C240000, 0xFFFF0000],  // 44.36.0.0/16    — AWS US-E2
+  [0x36C80000, 0xFFFF0000]   // 54.200.0.0/16   — AWS US-W4
+];
+
+// ─────────────────────────────────────────────
+//  §7  IP HELPERS
+// ─────────────────────────────────────────────
+function ipToInt(ip) {
+  var a = ip.split(".");
+  return (((+a[0]) << 24) | ((+a[1]) << 16) |
+          ((+a[2]) <<  8) |  (+a[3])) >>> 0;
 }
 
-// Lobby / Recruit / Queue
-function isLobbyTraffic(url, host){
-  var s = (url + host).toLowerCase();
-  return /(lobby|matchmaking|matching|queue|room|recruit|team|squad|party|invite|gate|dispatcher|router|region|allocation)/.test(s);
-}
-
-// ✅ WOW detector (NOT relying on "wow" only)
-function isWOWTraffic(url, host){
-  var s = (url + host).toLowerCase();
-  return /(worldofwonder|wow|ugc|creative|creation|creations|room|rooms|customroom|custom-room|map|maps|template|templates|featured|trending|popular|recommend|recommended|daily|weekly|newcreations|new-creations|contests|contest|community|workshop|editor|publish|published|playtogether|play-together)/.test(s);
-}
-
-// Arena helper (TDM etc.)
-function isArenaTraffic(url, host){
-  var s = (url + host).toLowerCase();
-  return /(arena|tdm|deathmatch|teamdeathmatch|team[_-]?deathmatch|gun|gungame|gun[_-]?game|training|arenatraining|arena[_-]?training|ultimate|ultimatearena|ultimate[_-]?arena|warehouse|hangar|wow)/.test(s);
-}
-
-// Match / gameplay
-function isMatchTraffic(url, host){
-  var s = (url + host).toLowerCase();
-  return /(game|battle|fight|combat|play|gs\.|gss|gameserver|logic|session|instance|zone|shard|node|cell|scene|realtime|action|frame)/.test(s);
-}
-
-// Voice
-function isVoiceTraffic(url, host){
-  var s = (url + host).toLowerCase();
-  return /(voice|rtc|webrtc|voip|audio|mic|talk|channel|stream|speech|sound)/.test(s);
-}
-
-function startsWithAny(ip, table){
-  for (var k in table) if (ip.indexOf(k) === 0) return true;
+function matchAnyMask(ip, masks) {
+  var n = ipToInt(ip);
+  for (var i = 0; i < masks.length; i++)
+    if ((n & masks[i][1]) >>> 0 === masks[i][0] >>> 0) return true;
   return false;
 }
 
-// PAC completeness helpers
-function normalizeHost(host){
-  var i = host.indexOf(":");
-  if (i !== -1) return host.substring(0, i);
+function isIPv4(s)  { return /^(\d{1,3}\.){3}\d{1,3}$/.test(s); }
+function isIPv6(s)  { return s.indexOf(":") !== -1; }
+
+function isPrivateOrLocal(ip) {
+  if (!isIPv4(ip)) return false;
+  return isInNet(ip,"10.0.0.0","255.0.0.0")     ||
+         isInNet(ip,"172.16.0.0","255.240.0.0")  ||
+         isInNet(ip,"192.168.0.0","255.255.0.0") ||
+         isInNet(ip,"127.0.0.0","255.0.0.0")     ||
+         isInNet(ip,"169.254.0.0","255.255.0.0");
+}
+
+// آمن — يُعيد IPv4 فقط أو null
+function getRealIPv4(host) {
+  try {
+    if (typeof dnsResolve !== "function") return null;
+    var ip = dnsResolve(host);
+    if (ip && isIPv4(ip)) return ip;
+  } catch(e) {}
+  return null;
+}
+
+// ─────────────────────────────────────────────
+//  §8  GEO CLASSIFIERS
+// ─────────────────────────────────────────────
+function isJordanIP(ip) {
+  if (!ip || !isIPv4(ip)) return false;
+  return matchAnyMask(ip, JO_ZAIN)    ||
+         matchAnyMask(ip, JO_ORANGE)  ||
+         matchAnyMask(ip, JO_UMNIAH)  ||
+         matchAnyMask(ip, JO_LINK)    ||
+         matchAnyMask(ip, JO_BATELCO) ||
+         matchAnyMask(ip, JO_VTEL)    ||
+         matchAnyMask(ip, JO_JT)      ||
+         matchAnyMask(ip, JO_OTHER);
+}
+
+function isGulfIP(ip) {
+  if (!ip || !isIPv4(ip)) return false;
+  return matchAnyMask(ip, GULF_MASKS);
+}
+
+function isAfghanistanIP(ip) {
+  if (!ip || !isIPv4(ip)) return false;
+  return matchAnyMask(ip, AF_MASKS);
+}
+
+function isFarRegionIP(ip) {
+  if (!ip || !isIPv4(ip)) return false;
+  return matchAnyMask(ip, FAR_MASKS);
+}
+
+// ─────────────────────────────────────────────
+//  §9  DOMAIN / HOST HELPERS
+// ─────────────────────────────────────────────
+function normalizeHost(host) {
+  host = (host || "").toLowerCase();
+  var c = host.indexOf(":");
+  if (c !== -1) host = host.substring(0, c);
   return host;
 }
 
-function isIPv4(ip){ return ip && ip.indexOf(".") !== -1; }
-
-function isPrivateOrLocalIP(ip){
-  if (!isIPv4(ip)) return false;
-  return (
-    isInNet(ip, "10.0.0.0", "255.0.0.0") ||
-    isInNet(ip, "172.16.0.0", "255.240.0.0") ||
-    isInNet(ip, "192.168.0.0", "255.255.0.0") ||
-    isInNet(ip, "127.0.0.0", "255.0.0.0") ||
-    isInNet(ip, "169.254.0.0", "255.255.0.0")
-  );
-}
-
-// REAL IPv4 only: if IPv6/NULL => null
-//function getRealIPv4(host){
- // var ip = dnsResolve(host);
-//  if (isIPv4(ip)) return ip;
- // return null;
-//}
-
-// =======================
-// GEO CHECKS — COMPLETE
-// =======================
-function isAfghanistanIP(ip){
-  if (!ip) return false;
-
-  // quick hint gate
-  var maybe =
-    ip.indexOf("58.147.")===0 || ip.indexOf("59.153.")===0 || ip.indexOf("61.5.")===0 ||
-    ip.indexOf("91.109.")===0 || ip.indexOf("103.")===0 || ip.indexOf("45.")===0;
-
-  if (!maybe) return false;
-
-  // confirmers (tight)
-  if (isInNet(ip, "58.147.128.0", "255.255.224.0")) return true; // /19
-  if (isInNet(ip, "59.153.124.0", "255.255.252.0")) return true; // /22
-  if (isInNet(ip, "61.5.192.0",   "255.255.240.0")) return true; // /20
-  if (isInNet(ip, "91.109.216.0", "255.255.248.0")) return true; // /21
-
-  // AF heavy 103.* (tight)
-  if (isInNet(ip, "103.5.172.0",  "255.255.252.0")) return true; // /22
-  if (isInNet(ip, "103.13.64.0",  "255.255.252.0")) return true; // /22
-  if (isInNet(ip, "103.17.60.0",  "255.255.252.0")) return true; // /22
-  if (isInNet(ip, "103.18.160.0", "255.255.252.0")) return true; // /22
-  if (isInNet(ip, "103.23.36.0",  "255.255.252.0")) return true; // /22
-  if (isInNet(ip, "103.28.132.0", "255.255.252.0")) return true; // /22
-
-  // AF 45.* (tight)
-  if (isInNet(ip, "45.65.56.0",   "255.255.252.0")) return true; // /22
-  if (isInNet(ip, "45.116.128.0", "255.255.254.0")) return true; // /23
-
+function domainInList(host, list) {
+  for (var i = 0; i < list.length; i++) {
+    var d = list[i].toLowerCase();
+    if (host === d || host.slice(-(d.length + 1)) === "." + d) return true;
+  }
   return false;
 }
 
-function isJordanIP(ip){
-  if (!ip) return false;
-
-  if (startsWithAny(ip, JO_TIGHT) || startsWithAny(ip, JO_FULL)) return true;
-
-  // Big JO confirmers
-  if (isInNet(ip, "176.28.128.0", "255.255.128.0")) return true; // /17
-  if (isInNet(ip, "176.29.0.0",   "255.255.0.0"))   return true; // /16
-  if (isInNet(ip, "46.185.128.0", "255.255.128.0")) return true; // /17
-  if (isInNet(ip, "86.108.0.0",   "255.255.128.0")) return true; // /17
-  if (isInNet(ip, "92.253.0.0",   "255.255.128.0")) return true; // /17
-  if (isInNet(ip, "94.249.0.0",   "255.255.128.0")) return true; // /17
-  if (isInNet(ip, "212.35.64.0",  "255.255.224.0")) return true; // /19
-  if (isInNet(ip, "188.247.64.0", "255.255.224.0")) return true; // /19
-  if (isInNet(ip, "91.106.0.0",   "255.255.0.0"))   return true; // /16
-  if (isInNet(ip, "82.212.64.0",  "255.255.192.0")) return true; // /18
-  if (isInNet(ip, "149.200.128.0","255.255.128.0")) return true; // /17
-
-  return false;
+// ─────────────────────────────────────────────
+//  §10  PUBG DETECTOR — Season 28+
+// ─────────────────────────────────────────────
+function isPUBG(host) {
+  return /pubg|pubgm|pubgmobile|bgmi|igamecj|igamepubg|proximabeta|krafton|lightspeed|levelinfinite|vnggames|garena|tencent|tencentyun|qcloud|myqcloud|tencentcs|gcloud|wechatgame|intlgame|amsoveasea|gcloudsdk|vmpone|gamecenter/.test(host);
 }
 
-function isGulfIP(ip){
-  if (!ip) return false;
-
-  if (startsWithAny(ip, GULF_NETS)) return true;
-
-  // Bahrain
-  if (isInNet(ip, "185.125.188.0", "255.255.252.0")) return true; // /22
-  if (isInNet(ip, "185.125.190.0", "255.255.254.0")) return true; // /23
-  if (isInNet(ip, "46.183.216.0",  "255.255.252.0")) return true; // /22
-
-  // Saudi (bigger)
-  if (isInNet(ip, "212.71.0.0",    "255.255.0.0"))   return true; // /16
-  if (isInNet(ip, "185.193.64.0",  "255.255.192.0")) return true; // /18
-  if (isInNet(ip, "185.194.0.0",   "255.254.0.0"))   return true; // /15
-  if (isInNet(ip, "94.26.0.0",     "255.255.0.0"))   return true; // /16
-  if (isInNet(ip, "95.177.0.0",    "255.255.0.0"))   return true; // /16
-
-  // UAE
-  if (isInNet(ip, "5.62.60.0",     "255.255.252.0")) return true; // /22
-  if (isInNet(ip, "31.192.0.0",    "255.255.0.0"))   return true; // /16
-  if (isInNet(ip, "31.193.0.0",    "255.255.0.0"))   return true; // /16
-  if (isInNet(ip, "86.96.0.0",     "255.255.0.0"))   return true; // /16
-
-  // Kuwait
-  if (isInNet(ip, "62.84.0.0",     "255.255.0.0"))   return true; // /16
-  if (isInNet(ip, "82.178.0.0",    "255.255.0.0"))   return true; // /16
-  if (isInNet(ip, "91.140.0.0",    "255.255.0.0"))   return true; // /16
-
-  // Qatar
-  if (isInNet(ip, "37.210.0.0",    "255.255.0.0"))   return true; // /16
-  if (isInNet(ip, "89.211.0.0",    "255.255.0.0"))   return true; // /16
-
-  // Oman
-  if (isInNet(ip, "185.64.0.0",    "255.255.0.0"))   return true; // /16
-  if (isInNet(ip, "5.36.0.0",      "255.255.0.0"))   return true; // /16
-
-  return false;
+// ─────────────────────────────────────────────
+//  §11  TRAFFIC TYPE DETECTORS
+// ─────────────────────────────────────────────
+function isWOWTraffic(url, host) {
+  var s = (url + host).toLowerCase();
+  return /worldofwonder|wow|ugc|creative|creation|customroom|custom.room|workshop|editor|publish|playtogether|featured|trending|popular|recommend|contest|community|maps|template/.test(s);
 }
 
-// =====================================================
-// TIMING PRESSURE — increases Jordan chance (longer search)
-// =====================================================
-var RECRUIT_JO_ONLY_MS = 90000; // 90s: push Jordan harder
-var RECRUIT_START_TS = Date.now();
-function recruitJOOnly(){
-  return (Date.now() - RECRUIT_START_TS) < RECRUIT_JO_ONLY_MS;
+function isArenaTraffic(url, host) {
+  var s = (url + host).toLowerCase();
+  return /arena|tdm|deathmatch|gungame|gun.game|training|warehouse|hangar|ultimatearena|ultimate.arena/.test(s);
 }
 
-var ARENA_JO_ONLY_MS = 45000;      // 45s JO-only in arena
-var ARENA_GULF_ONLY_MS = 180000;   // then JO/Gulf (still no Europe)
-var ARENA_START_TS = Date.now();
-function arenaPhase(){
-  var dt = Date.now() - ARENA_START_TS;
-  if (dt < ARENA_JO_ONLY_MS) return "JO_ONLY";
-  if (dt < ARENA_GULF_ONLY_MS) return "JO_OR_GULF";
-  return "AFTER";
+function isLobbyTraffic(url, host) {
+  var s = (url + host).toLowerCase();
+  return /lobby|matchmak|matching|queue|room|recruit|squad|party|invite|gateway|dispatcher|region|allocation|gate/.test(s);
 }
 
-// WOW timing (optional pressure: Jordan first then Gulf)
-var WOW_JO_ONLY_MS = 60000; // 60s JO-only in WOW rooms/ugc
-var WOW_START_TS = Date.now();
-function wowJOOnly(){
-  return (Date.now() - WOW_START_TS) < WOW_JO_ONLY_MS;
+function isVoiceTraffic(url, host) {
+  var s = (url + host).toLowerCase();
+  return /voice|rtc|webrtc|voip|audio|mic|talk|channel|speech|sound/.test(s);
 }
 
-// =====================================================
-// MAIN ROUTING ENGINE — FINAL COMPLETE
-// =====================================================
-function FindProxyForURL(url, host){
+function isMatchTraffic(url, host) {
+  var s = (url + host).toLowerCase();
+  return /game|battle|fight|combat|play|gs\.|gss|gameserver|logic|session|instance|zone|shard|node|scene|realtime|action|frame|tick|sync/.test(s);
+}
 
-  host = normalizeHost(host.toLowerCase());
+// ─────────────────────────────────────────────
+//  §12  TIMING ENGINE — Jordan-First Pressure
+//  ⚠️ nowMs() آمن — يعود إلى 0 إذا لم يتوفر Date
+// ─────────────────────────────────────────────
+function nowMs() {
+  try {
+    return (typeof Date !== "undefined" && Date.now) ? Date.now() : 0;
+  } catch(e) { return 0; }
+}
 
-  // SAFE DIRECT
-  for (var i=0;i<SAFE_DIRECT.length;i++)
-    if (dnsDomainIs(host, SAFE_DIRECT[i])) return "DIRECT";
+var _startTs = nowMs();
 
-  for (var j=0;j<CDN_DIRECT.length;j++)
-    if (shExpMatch(host, "*"+CDN_DIRECT[j])) return "DIRECT";
+var T_RECRUIT_JO   = 90000;   // 90s — ابحث في الأردن أولاً
+var T_ARENA_JO     = 45000;   // 45s — Arena أردني فقط
+var T_ARENA_GULF   = 180000;  // ثم أردني + خليجي
+var T_WOW_JO       = 60000;   // 60s — WOW أردني أولاً
 
+function elapsedMs() { return nowMs() - _startTs; }
+
+function recruitJOOnly()  { return elapsedMs() < T_RECRUIT_JO; }
+function wowJOOnly()      { return elapsedMs() < T_WOW_JO; }
+
+function arenaPhase() {
+  var dt = elapsedMs();
+  if (dt < T_ARENA_JO)   return "JO_ONLY";
+  if (dt < T_ARENA_GULF) return "JO_OR_GULF";
+  return "OPEN";
+}
+
+// ─────────────────────────────────────────────
+//  §13  FindProxyForURL — نقطة الدخول الرئيسية
+// ─────────────────────────────────────────────
+function FindProxyForURL(url, host) {
+  host = normalizeHost(host || url || "");
+
+  // ══════════════════════════════════════════
+  // [1]  SAFE DIRECT — System / CDN / Video
+  // ══════════════════════════════════════════
+  if (domainInList(host, SAFE_DIRECT)) return DIRECT;
+
+  // ══════════════════════════════════════════
+  // [2]  سيرفرات محلية داخلية → حجب (Private IP)
+  // ══════════════════════════════════════════
   if (isPlainHostName(host)) return BLOCK;
 
-  // Non-PUBG direct
-  if (!isPUBG(host)) return "DIRECT";
+  // ══════════════════════════════════════════
+  // [3]  غير PUBG → مرور مباشر
+  // ══════════════════════════════════════════
+  if (!isPUBG(host)) return DIRECT;
 
-  // Resolve IPv4 only
+  // ══════════════════════════════════════════
+  // [4]  Resolve IPv4
+  // ══════════════════════════════════════════
   var ip = getRealIPv4(host);
-  if (!ip) return BLOCK;
-  if (isPrivateOrLocalIP(ip)) return BLOCK;
+  if (!ip)                   return BLOCK;  // فشل الـ DNS
+  if (isPrivateOrLocal(ip))  return BLOCK;  // IP خاص
 
-  // Hard block Afghanistan specifically
+  // ══════════════════════════════════════════
+  // [5]  Hard Block — Afghanistan + Far Regions
+  // ══════════════════════════════════════════
   if (isAfghanistanIP(ip)) return BLOCK;
+  if (isFarRegionIP(ip))   return BLOCK;
 
-  // Quick far-region blocks
-  for (var b=0;b<BLOCKED.length;b++)
-    if (ip.indexOf(BLOCKED[b]) === 0) return BLOCK;
-
-  // GEO gate: allow ONLY Jordan or Gulf
+  // ══════════════════════════════════════════
+  // [6]  GEO GATE — أردن أو خليج فقط
+  // ══════════════════════════════════════════
   var JO = isJordanIP(ip);
   var GF = isGulfIP(ip);
-  if (!(JO || GF)) return BLOCK;
+  if (!JO && !GF) return BLOCK;
 
-  // =======================
-  // WOW / UGC / ROOMS — FORCE LOBBY 9030
-  // Priority: Jordan > Gulf
-  // =======================
+  // ══════════════════════════════════════════
+  // [7]  WOW / UGC / ROOMS — Lobby 9030
+  // ══════════════════════════════════════════
   if (isWOWTraffic(url, host)) {
-    if (wowJOOnly()) {
-      if (JO) return LOBBY_PROXY;
-      return BLOCK; // keep searching Jordan
-    }
-    // after pressure: allow JO or Gulf (still no Europe)
-    if (JO || GF) return LOBBY_PROXY;
-    return BLOCK;
+    if (wowJOOnly()) return JO ? LOBBY_PROXY : BLOCK;
+    return (JO || GF) ? LOBBY_PROXY : BLOCK;
   }
 
-  // =======================
-  // ARENA (TDM/Gun/Training/Ultimate/Warehouse/Hangar)
-  // =======================
+  // ══════════════════════════════════════════
+  // [8]  ARENA / TDM / TRAINING — Lobby 9030
+  // ══════════════════════════════════════════
   if (isArenaTraffic(url, host)) {
     var phase = arenaPhase();
-
-    if (phase === "JO_ONLY") {
-      if (JO) return LOBBY_PROXY;
-      return BLOCK;
-    }
-
-    if (phase === "JO_OR_GULF") {
-      if (JO || GF) return LOBBY_PROXY;
-      return BLOCK;
-    }
-
-    if (JO || GF) return LOBBY_PROXY;
-    return BLOCK;
+    if (phase === "JO_ONLY")    return JO ? LOBBY_PROXY : BLOCK;
+    if (phase === "JO_OR_GULF") return (JO || GF) ? LOBBY_PROXY : BLOCK;
+    return (JO || GF) ? LOBBY_PROXY : BLOCK;
   }
 
-  // =======================
-  // RECRUIT / LOBBY
-  // =======================
+  // ══════════════════════════════════════════
+  // [9]  LOBBY / MATCHMAKING — Lobby 9030
+  // ══════════════════════════════════════════
   if (isLobbyTraffic(url, host)) {
-    if (recruitJOOnly()) {
-      if (JO) return LOBBY_PROXY;
-      return BLOCK; // push Jordan harder
-    }
-    if (JO || GF) return LOBBY_PROXY;
-    return BLOCK;
+    if (recruitJOOnly()) return JO ? LOBBY_PROXY : BLOCK;
+    return (JO || GF) ? LOBBY_PROXY : BLOCK;
   }
 
-  // =======================
-  // VOICE
-  // =======================
-  if (isVoiceTraffic(url, host))
-    return VOICE_PROXY;
+  // ══════════════════════════════════════════
+  // [10]  VOICE / RTC — Voice Proxy
+  // ══════════════════════════════════════════
+  if (isVoiceTraffic(url, host)) return VOICE_PROXY;
 
-  // =======================
-  // MATCH (Classic/Ranked)
-  // =======================
-  if (isMatchTraffic(url, host))
-    return MATCH_PROXY;
+  // ══════════════════════════════════════════
+  // [11]  MATCH / IN-GAME — Match Proxy
+  // ══════════════════════════════════════════
+  if (isMatchTraffic(url, host)) return MATCH_PROXY;
 
-  // Default PUBG
+  // ══════════════════════════════════════════
+  // [12]  DEFAULT PUBG → Match Proxy
+  // ══════════════════════════════════════════
   return MATCH_PROXY;
 }
