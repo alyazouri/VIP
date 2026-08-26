@@ -12,7 +12,7 @@
    🌐 PROXY DEFINITIONS
    ========================================================= */
 
-var PROXY_A = "PROXY 85.159.217.18:80";
+var PROXY_A = "PROXY 79.173.228.180:10010";
 var PROXY_B = "PROXY 85.159.217.18:443";
 var PROXY_C = "PROXY 92.253.2.100:8080";
 
