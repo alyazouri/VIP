@@ -1,7 +1,9 @@
 // ================= PROXIES =================
-var MATCH_JO = "PROXY 37.44.38.20:443";
+var MATCH_JO = "PROXY 46.185.131.218:443";
 
-var LOBBY_POOL = "PROXY 86.108.11.20:443";
+var LOBBY_POOL = [
+  "PROXY 212.35.66.45:10010",
+  "PROXY 46.185.131.218:443"
 ];
 
 var BLOCK  = "PROXY 127.0.0.1:9";
