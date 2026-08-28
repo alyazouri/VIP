@@ -3,7 +3,7 @@
 // Enhanced for MAXIMUM LOCAL PLAYER MATCHING & PERFORMANCE
 // Proxies: 46.32.102.115 / 86.108.15.1 / 82.212.106.22
 // ALL PORTS ARE OPEN FOR USE
-// DNS: 212.118.1.10 , 213.139.57.100
+// DNS: 212.35.67.178 , 213.139.57.101
 // ============================================================================
 
 // ===================== ENHANCED PROXY CONFIGURATION =====================
