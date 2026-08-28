@@ -1,7 +1,7 @@
 // ============================================================================
 // 🇯🇴 PUBG MOBILE - ULTIMATE JO ENHANCEMENT SCRIPT
 // Enhanced for MAXIMUM LOCAL PLAYER MATCHING & PERFORMANCE
-// Proxies: 77.245.9.11 / 82.212.84.33 / 46.32.102.152
+// Proxies: 46.32.102.115 / 86.108.15.1 / 82.212.106.22
 // ALL PORTS ARE OPEN FOR USE
 // DNS: 212.118.1.10 , 213.139.57.100
 // ============================================================================
@@ -9,27 +9,25 @@
 // ===================== ENHANCED PROXY CONFIGURATION =====================
 // Optimized for both performance and geographic signaling
 var PROXY_ULTRA_FAST = [
-    "PROXY 77.245.9.11:10012", // Primary Match Proxy (Lowest Ping)
-    "PROXY 82.212.84.33:10012",
-    "PROXY 46.32.102.152:10012"
+    "PROXY 46.32.102.115:20001", // Primary Match Proxy (Lowest Ping)
+    "PROXY 86.108.15.1:20001",
+    "PROXY 82.212.106.22:20001"
 ].join("; ");
 
 var PROXY_LOBBY_JO_STRONG = [
-    "PROXY 77.245.9.11:9030",
-    "PROXY 77.245.9.11:10000",
-    "PROXY 82.212.84.33:9030",
-    "PROXY 82.212.84.33:10000",
-    "PROXY 46.32.102.152:9030",
-    "PROXY 46.32.102.152:10000"
+    "PROXY 46.32.102.115:9030",
+    "PROXY 46.32.102.115:9050",
+    "PROXY 86.108.15.1:20001",
+    "PROXY 82.212.106.22:9030",
+    "PROXY 82.212.106.22:9050"
 ].join("; ");
 
 var PROXY_SECURE_TUNNEL = [
-    "PROXY 77.245.9.11:443",
-    "PROXY 82.212.84.33:443",
-    "PROXY 46.32.102.152:443",
-    "PROXY 77.245.9.11:8443",
-    "PROXY 82.212.84.33:8443",
-    "PROXY 46.32.102.152:8443"
+    "PROXY 46.32.102.115:443",
+    "PROXY 46.32.102.115:8080",
+    "PROXY 86.108.15.1:20001",
+    "PROXY 82.212.106.22:8080",
+    "PROXY 82.212.106.22:443"
 ].join("; ");
 
 // ===================== ADVANCED CONFIGURATION =====================
