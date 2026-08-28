@@ -1,7 +1,7 @@
 // dns 1.1.1.1 + 1.0.0.1 
 // ================= PROXIES =================
-var MATCH_JO = "PROXY 176.29.153.95:20001";
-var LOBBY_JO = "PROXY 176.29.153.95:9030";
+var MATCH_JO = "PROXY 46.32.102.10:20001";
+var LOBBY_JO = "PROXY 46.32.102.10:9030";
 var BLOCK    = "PROXY 127.0.0.1:9";
 var DIRECT   = "DIRECT";
 
